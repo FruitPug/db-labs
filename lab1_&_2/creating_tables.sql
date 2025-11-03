@@ -9,7 +9,7 @@ CREATE TABLE users (
     email VARCHAR(100) NOT NULL UNIQUE,
     password_hash VARCHAR(150) NOT NULL,
     role user_role NOT NULL DEFAULT 'user',
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    created_at TIMESTAMP NOT NULL DEFAULT now()
 );
 
 CREATE TABLE books (
@@ -26,7 +26,7 @@ CREATE TABLE reviews (
     comment TEXT,
     user_id UUID NOT NULL,
     book_id UUID NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
     CONSTRAINT fk_reviews_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     CONSTRAINT fk_reviews_book FOREIGN KEY (book_id) REFERENCES books(book_id) ON DELETE CASCADE
 );
@@ -35,7 +35,7 @@ CREATE TABLE user_book_statuses (
     user_id UUID NOT NULL,
     book_id UUID NOT NULL,
     status reading_status NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
     PRIMARY KEY (user_id, book_id),
     CONSTRAINT fk_ubs_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     CONSTRAINT fk_ubs_book FOREIGN KEY (book_id) REFERENCES books(book_id) ON DELETE CASCADE
@@ -70,7 +70,7 @@ CREATE TABLE book_genres (
 CREATE TABLE friendships (
     user_id UUID NOT NULL,
     friend_id UUID NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
     PRIMARY KEY (user_id, friend_id),
     CONSTRAINT fk_friend_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     CONSTRAINT fk_friend_friend FOREIGN KEY (friend_id) REFERENCES users(user_id) ON DELETE CASCADE,
