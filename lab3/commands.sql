@@ -3,8 +3,8 @@ select * from books where rating > 3;
 select user_id, book_id from user_book_statuses where status = 'reading';
 
 
-insert into users (user_id, name, email, password_hash)
-values (gen_random_uuid(), 'Robert', 'robert@gmail.com', 'hash_robert');
+insert into users (name, email, password_hash)
+values ('Robert', 'robert@gmail.com', 'hash_robert');
 
 select * from users where name = 'Robert';
 
