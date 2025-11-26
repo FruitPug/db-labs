@@ -1,0 +1,75 @@
+@startuml
+entity "users" as users {
+    * user_id : uuid
+    --
+    name : varchar
+    email : varchar
+    password_hash : varchar
+    role : user_role
+    created_at : timestamp
+}
+
+entity "books" as books {
+    * book_id : uuid
+    --
+    title : varchar
+    published_year : smallint
+}
+
+entity "reviews" as reviews {
+    * review_id : uuid
+    --
+    rating : integer
+    comment : text
+    user_id : uuid
+    book_id : uuid
+    created_at : timestamp
+}
+
+entity "user_book_statuses" as ubs {
+    * user_id : uuid
+    * book_id : uuid
+    --
+    status : reading_status
+    created_at : timestamp
+}
+
+entity "authors" as authors {
+    * author_id : uuid
+    --
+    name : varchar
+}
+
+entity "book_authors" as ba {
+    * book_id : uuid
+    * author_id : uuid
+}
+
+entity "genres" as genres {
+    * genre_id : uuid
+    --
+    name : varchar
+}
+
+entity "book_genres" as bg {
+    * book_id : uuid
+    * genre_id : uuid
+}
+
+entity "friendships" as friendships {
+    * user_id : uuid
+    * friend_id : uuid
+    --
+    created_at : timestamp
+}
+
+users ||--o{ reviews : "writes"
+users ||--o{ ubs : "status"
+books ||--o{ reviews : "has"
+books ||--o{ ubs : "status"
+books ||--|{ ba : "authored by"
+authors ||--o{ ba : "writes"
+books ||--|{ bg : "categorized as"
+genres ||--o{ bg : "categorizes"
+users ||--o{ friendships : "friends with"
+@enduml
