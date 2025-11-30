@@ -4,10 +4,10 @@
 
 Prisma model (фрагмент):
 ```prisma
-model UserProfile {
+model user_profiles {
   id      String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user_id String  @db.Uuid
-  user    users   @relation(fields: [user_id], references: [user_id])
-  bio     String?
+  bio     String? @db.VarChar(150)
+  users   users   @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_ubs_user")
 }
 ```

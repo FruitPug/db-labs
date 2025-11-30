@@ -93,6 +93,14 @@ model users {
   friendships_friendships_user_idTousers   friendships[]        @relation("friendships_user_idTousers")
   reviews                                  reviews[]
   user_book_statuses                       user_book_statuses[]
+  user_profiles                            user_profiles[]
+}
+
+model user_profiles {
+  id      String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id String  @db.Uuid
+  bio     String? @db.VarChar(150)
+  users   users   @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_ubs_user")
 }
 
 enum reading_status {
