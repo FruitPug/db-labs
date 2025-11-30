@@ -19,3 +19,6 @@ model user_profiles {
 ### drop-book-publish-year
 - З Book видалено publish_year.
 - Сенсу в цьому нема, просто треба було щось видалити
+
+## Prisma Studio
+![img.png](img.png)
