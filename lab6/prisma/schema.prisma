@@ -35,7 +35,6 @@ model book_genres {
 model books {
   book_id            String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   title              String               @db.VarChar(100)
-  published_year     Int?                 @db.SmallInt
   book_authors       book_authors[]
   book_genres        book_genres[]
   reviews            reviews[]

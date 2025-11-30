@@ -15,3 +15,7 @@ model user_profiles {
 ### add-username-to-user
 - До User додано поле username (nullable, унікальне).
 - Мета: окремий логін, не прив'язаний до email.
+
+### drop-book-publish-year
+- З Book видалено publish_year.
+- Сенсу в цьому нема, просто треба було щось видалити
