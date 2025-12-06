@@ -1,0 +1,29 @@
+services:
+  postgres:
+    image: postgres:latest
+    container_name: db_course_postgres
+    environment:
+      POSTGRES_DB: db_course
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_course_data:/var/lib/postgresql
+
+#  app:
+#    build: .
+#    container_name: db_course_app
+#    depends_on:
+#      - postgres
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/db_course
+#      SPRING_DATASOURCE_USERNAME: user
+#      SPRING_DATASOURCE_PASSWORD: pass
+#      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+#      SPRING_PROFILES_ACTIVE: docker
+#    ports:
+#      - "8081:8081"
+
+volumes:
+  db_course_data:
