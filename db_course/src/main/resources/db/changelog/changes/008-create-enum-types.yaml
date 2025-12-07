@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: 008-create-enum-types
+      author: admin
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              CREATE TYPE user_role_enum AS ENUM (
+                'ADMIN', 'MANAGER', 'DEVELOPER'
+              );
+
+              CREATE TYPE project_status_enum AS ENUM (
+                'ACTIVE', 'ARCHIVED', 'ON_HOLD'
+              );
+
+              CREATE TYPE project_member_role_enum AS ENUM (
+                'OWNER', 'MAINTAINER', 'CONTRIBUTOR', 'VIEWER'
+              );
+
+              CREATE TYPE task_status_enum AS ENUM (
+                'TODO', 'IN_PROGRESS', 'DONE', 'CANCELLED'
+              );
+
+              CREATE TYPE task_priority_enum AS ENUM (
+                'LOW', 'MEDIUM', 'HIGH', 'CRITICAL'
+              );

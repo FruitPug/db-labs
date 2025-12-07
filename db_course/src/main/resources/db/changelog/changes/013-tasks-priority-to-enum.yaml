@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 013-tasks-priority-to-enum
+      author: admin
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              ALTER TABLE tasks
+              DROP CONSTRAINT chk_tasks_priority;
+              
+              ALTER TABLE tasks 
+              ALTER COLUMN priority 
+              TYPE task_priority_enum 
+              USING priority::task_priority_enum;

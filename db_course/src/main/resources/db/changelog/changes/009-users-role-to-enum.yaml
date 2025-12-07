@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 009-users-role-to-enum
+      author: admin
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              ALTER TABLE users
+              DROP CONSTRAINT chk_users_role;
+              
+              ALTER TABLE users 
+              ALTER COLUMN role 
+              TYPE user_role_enum 
+              USING role::user_role_enum;

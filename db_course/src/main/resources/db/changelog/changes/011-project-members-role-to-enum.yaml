@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 011-project-members-role-to-enum
+      author: admin
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              ALTER TABLE project_members
+              DROP CONSTRAINT chk_project_members_role;
+              
+              ALTER TABLE project_members 
+              ALTER COLUMN role 
+              TYPE project_member_role_enum 
+              USING role::project_member_role_enum;

@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 012-tasks-status-to-enum
+      author: admin
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              ALTER TABLE tasks
+              DROP CONSTRAINT chk_tasks_status;
+              
+              ALTER TABLE tasks 
+              ALTER COLUMN status 
+              TYPE task_status_enum 
+              USING status::task_status_enum;

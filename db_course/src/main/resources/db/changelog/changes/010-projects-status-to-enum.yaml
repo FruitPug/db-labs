@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 010-projects-status-to-enum
+      author: admin
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              ALTER TABLE projects
+              DROP CONSTRAINT chk_projects_status;
+              
+              ALTER TABLE projects 
+              ALTER COLUMN status 
+              TYPE project_status_enum 
+              USING status::project_status_enum;
