@@ -1,4 +1,4 @@
-package com.example.db_course.models;
+package com.example.db_course.model;
 
 import jakarta.persistence.*;
 
@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "task_comments")
-public class TaskComment {
+public class TaskCommentEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,13 +16,13 @@ public class TaskComment {
     @JoinColumn(name = "task_id",
             nullable = false,
             foreignKey = @ForeignKey(name = "fk_task_comments_task"))
-    private Task task;
+    private TaskEntity task;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id",
             nullable = false,
             foreignKey = @ForeignKey(name = "fk_task_comments_author"))
-    private User author;
+    private UserEntity author;
 
     @Column(name = "body", nullable = false, columnDefinition = "text")
     private String body;

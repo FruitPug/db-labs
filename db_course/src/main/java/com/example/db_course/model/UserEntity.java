@@ -1,6 +1,6 @@
-package com.example.db_course.models;
+package com.example.db_course.model;
 
-import com.example.db_course.models.enums.UserRole;
+import com.example.db_course.model.enums.UserRole;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -9,7 +9,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,14 +39,14 @@ public class User {
 
 
     @OneToMany(mappedBy = "user")
-    private Set<ProjectMember> projectMemberships;
+    private Set<ProjectMemberEntity> projectMemberships;
 
     @OneToMany(mappedBy = "creator")
-    private List<Task> createdTasks;
+    private List<TaskEntity> createdTasks;
 
     @OneToMany(mappedBy = "assignee")
-    private List<Task> assignedTasks;
+    private List<TaskEntity> assignedTasks;
 
     @OneToMany(mappedBy = "author")
-    private List<TaskComment> comments;
+    private List<TaskCommentEntity> comments;
 }

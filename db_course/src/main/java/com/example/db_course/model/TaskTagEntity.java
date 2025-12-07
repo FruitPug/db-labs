@@ -1,4 +1,4 @@
-package com.example.db_course.models;
+package com.example.db_course.model;
 
 import jakarta.persistence.*;
 
@@ -10,7 +10,7 @@ import jakarta.persistence.*;
                 columnNames = {"task_id", "tag_id"}
         )
 )
-public class TaskTag {
+public class TaskTagEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,11 +20,11 @@ public class TaskTag {
     @JoinColumn(name = "task_id",
             nullable = false,
             foreignKey = @ForeignKey(name = "fk_task_tags_task"))
-    private Task task;
+    private TaskEntity task;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "tag_id",
             nullable = false,
             foreignKey = @ForeignKey(name = "fk_task_tags_tag"))
-    private Tag tag;
+    private TagEntity tag;
 }

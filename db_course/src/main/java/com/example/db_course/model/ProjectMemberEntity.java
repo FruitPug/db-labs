@@ -1,6 +1,6 @@
-package com.example.db_course.models;
+package com.example.db_course.model;
 
-import com.example.db_course.models.enums.ProjectMemberRole;
+import com.example.db_course.model.enums.ProjectMemberRole;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
                 columnNames = {"project_id", "user_id"}
         )
 )
-public class ProjectMember {
+public class ProjectMemberEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,13 +22,13 @@ public class ProjectMember {
     @JoinColumn(name = "project_id",
             nullable = false,
             foreignKey = @ForeignKey(name = "fk_project_members_project"))
-    private Project project;
+    private ProjectEntity project;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id",
             nullable = false,
             foreignKey = @ForeignKey(name = "fk_project_members_user"))
-    private User user;
+    private UserEntity user;
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "project_member_role_enum", nullable = false)

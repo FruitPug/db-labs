@@ -1,6 +1,6 @@
-package com.example.db_course.models;
+package com.example.db_course.model;
 
-import com.example.db_course.models.enums.ProjectStatus;
+import com.example.db_course.model.enums.ProjectStatus;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -9,7 +9,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "projects")
-public class Project {
+public class ProjectEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // BIGSERIAL
@@ -39,8 +39,8 @@ public class Project {
 
 
     @OneToMany(mappedBy = "project")
-    private Set<ProjectMember> members;
+    private Set<ProjectMemberEntity> members;
 
     @OneToMany(mappedBy = "project")
-    private List<Task> tasks;
+    private List<TaskEntity> tasks;
 }

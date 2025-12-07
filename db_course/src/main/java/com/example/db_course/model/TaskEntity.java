@@ -1,7 +1,7 @@
-package com.example.db_course.models;
+package com.example.db_course.model;
 
-import com.example.db_course.models.enums.TaskPriority;
-import com.example.db_course.models.enums.TaskStatus;
+import com.example.db_course.model.enums.TaskPriority;
+import com.example.db_course.model.enums.TaskStatus;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -11,7 +11,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "tasks")
-public class Task {
+public class TaskEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,18 +21,18 @@ public class Task {
     @JoinColumn(name = "project_id",
             nullable = false,
             foreignKey = @ForeignKey(name = "fk_tasks_project"))
-    private Project project;
+    private ProjectEntity project;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id",
             nullable = false,
             foreignKey = @ForeignKey(name = "fk_tasks_creator"))
-    private User creator;
+    private UserEntity creator;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assignee_id",
             foreignKey = @ForeignKey(name = "fk_tasks_assignee"))
-    private User assignee;
+    private UserEntity assignee;
 
 
     @Column(nullable = false, length = 255)
@@ -66,8 +66,8 @@ public class Task {
 
 
     @OneToMany(mappedBy = "task")
-    private List<TaskComment> comments;
+    private List<TaskCommentEntity> comments;
 
     @OneToMany(mappedBy = "task")
-    private Set<TaskTag> taskTags;
+    private Set<TaskTagEntity> taskTags;
 }

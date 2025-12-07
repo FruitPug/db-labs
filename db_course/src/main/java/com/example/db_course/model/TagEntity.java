@@ -1,4 +1,4 @@
-package com.example.db_course.models;
+package com.example.db_course.model;
 
 import jakarta.persistence.*;
 
@@ -7,7 +7,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "tags")
-public class Tag {
+public class TagEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,5 +29,5 @@ public class Tag {
     private LocalDateTime deletedAt;
 
     @OneToMany(mappedBy = "tag")
-    private Set<TaskTag> taskTags;
+    private Set<TaskTagEntity> taskTags;
 }
