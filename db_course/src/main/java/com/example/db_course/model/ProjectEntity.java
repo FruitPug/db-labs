@@ -2,6 +2,7 @@ package com.example.db_course.model;
 
 import com.example.db_course.model.enums.ProjectStatus;
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -9,10 +10,12 @@ import java.util.Set;
 
 @Entity
 @Table(name = "projects")
+
+@Data
 public class ProjectEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // BIGSERIAL
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, length = 255)

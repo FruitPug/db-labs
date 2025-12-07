@@ -1,12 +1,15 @@
 package com.example.db_course.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
 @Table(name = "tags")
+
+@Data
 public class TagEntity {
 
     @Id

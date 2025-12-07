@@ -1,11 +1,14 @@
 package com.example.db_course.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "task_comments")
+
+@Data
 public class TaskCommentEntity {
 
     @Id

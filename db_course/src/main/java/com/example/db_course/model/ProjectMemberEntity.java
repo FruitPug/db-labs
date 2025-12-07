@@ -2,6 +2,7 @@ package com.example.db_course.model;
 
 import com.example.db_course.model.enums.ProjectMemberRole;
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
@@ -12,6 +13,8 @@ import java.time.LocalDateTime;
                 columnNames = {"project_id", "user_id"}
         )
 )
+
+@Data
 public class ProjectMemberEntity {
 
     @Id

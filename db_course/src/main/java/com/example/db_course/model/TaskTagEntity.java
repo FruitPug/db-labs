@@ -1,6 +1,7 @@
 package com.example.db_course.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity
 @Table(
@@ -10,6 +11,8 @@ import jakarta.persistence.*;
                 columnNames = {"task_id", "tag_id"}
         )
 )
+
+@Data
 public class TaskTagEntity {
 
     @Id

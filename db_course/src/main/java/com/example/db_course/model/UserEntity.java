@@ -2,6 +2,7 @@ package com.example.db_course.model;
 
 import com.example.db_course.model.enums.UserRole;
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -9,6 +10,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "users")
+
+@Data
 public class UserEntity {
 
     @Id

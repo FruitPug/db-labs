@@ -3,6 +3,7 @@ package com.example.db_course.model;
 import com.example.db_course.model.enums.TaskPriority;
 import com.example.db_course.model.enums.TaskStatus;
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -11,6 +12,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "tasks")
+
+@Data
 public class TaskEntity {
 
     @Id
