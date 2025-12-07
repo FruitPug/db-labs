@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: 007-create-task-tags-table
+      author: admin
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              CREATE TABLE task_tags (
+                            id        BIGSERIAL PRIMARY KEY,
+                            task_id   BIGINT NOT NULL,
+                            tag_id    BIGINT NOT NULL,
+
+                            CONSTRAINT fk_task_tags_task
+                              FOREIGN KEY (task_id) REFERENCES tasks (id)
+                              ON DELETE CASCADE,
+
+                            CONSTRAINT fk_task_tags_tag
+                              FOREIGN KEY (tag_id) REFERENCES tags (id)
+                              ON DELETE CASCADE,
+
+                            CONSTRAINT uq_task_tags_task_tag
+                              UNIQUE (task_id, tag_id)
+                          );
+
+                          CREATE INDEX idx_task_tags_tag_id
+                            ON task_tags (tag_id);

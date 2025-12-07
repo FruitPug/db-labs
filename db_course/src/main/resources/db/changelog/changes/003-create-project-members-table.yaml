@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-create-project-members-table
+      author: admin
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              CREATE TABLE project_members (
+                            id           BIGSERIAL PRIMARY KEY,
+                            project_id   BIGINT      NOT NULL,
+                            user_id      BIGINT      NOT NULL,
+                            role         VARCHAR(50) NOT NULL,
+                            joined_at    TIMESTAMP   NOT NULL DEFAULT NOW(),
+
+                            CONSTRAINT fk_project_members_project
+                              FOREIGN KEY (project_id) REFERENCES projects (id)
+                              ON DELETE CASCADE,
+
+                            CONSTRAINT fk_project_members_user
+                              FOREIGN KEY (user_id) REFERENCES users (id)
+                              ON DELETE CASCADE,
+
+                            CONSTRAINT uq_project_members_project_user
+                              UNIQUE (project_id, user_id),
+
+                            CONSTRAINT chk_project_members_role
+                              CHECK (role IN ('OWNER', 'MAINTAINER', 'CONTRIBUTOR', 'VIEWER'))
+                          );
+
+                          CREATE INDEX idx_project_members_user_id
+                            ON project_members (user_id);

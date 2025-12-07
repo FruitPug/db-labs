@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-users-table
+      author: admin
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              CREATE TABLE users (
+                            id           BIGSERIAL PRIMARY KEY,
+                            email        VARCHAR(255) NOT NULL UNIQUE,
+                            full_name    VARCHAR(255) NOT NULL,
+                            role         VARCHAR(50)  NOT NULL,
+                            created_at   TIMESTAMP    NOT NULL DEFAULT NOW(),
+                            updated_at   TIMESTAMP    NOT NULL DEFAULT NOW(),
+                            is_deleted   BOOLEAN      NOT NULL DEFAULT FALSE,
+                            deleted_at   TIMESTAMP,
+                            CONSTRAINT chk_users_role
+                              CHECK (role IN ('ADMIN', 'MANAGER', 'DEVELOPER'))
+                          );
+
+                          CREATE INDEX idx_users_email ON users (email);

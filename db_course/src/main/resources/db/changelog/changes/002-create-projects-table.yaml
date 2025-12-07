@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-create-projects-table
+      author: admin
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              CREATE TABLE projects (
+                            id            BIGSERIAL PRIMARY KEY,
+                            name          VARCHAR(255) NOT NULL,
+                            description   TEXT,
+                            status        VARCHAR(50) NOT NULL,
+                            created_at    TIMESTAMP    NOT NULL DEFAULT NOW(),
+                            updated_at    TIMESTAMP    NOT NULL DEFAULT NOW(),
+                            is_deleted    BOOLEAN      NOT NULL DEFAULT FALSE,
+                            deleted_at    TIMESTAMP,
+
+                            CONSTRAINT chk_projects_status
+                              CHECK (status IN ('ACTIVE', 'ARCHIVED', 'ON_HOLD'))
+                          );
+
+                          CREATE INDEX idx_projects_status ON projects (status);

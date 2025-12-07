@@ -1,0 +1,29 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-create-task-comments-table
+      author: admin
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: |
+              CREATE TABLE task_comments (
+                            id           BIGSERIAL PRIMARY KEY,
+                            task_id      BIGINT     NOT NULL,
+                            author_id    BIGINT     NOT NULL,
+                            body         TEXT       NOT NULL,
+                            created_at   TIMESTAMP  NOT NULL DEFAULT NOW(),
+                            updated_at   TIMESTAMP  NOT NULL DEFAULT NOW(),
+                            is_deleted   BOOLEAN    NOT NULL DEFAULT FALSE,
+                            deleted_at   TIMESTAMP,
+
+                            CONSTRAINT fk_task_comments_task
+                              FOREIGN KEY (task_id) REFERENCES tasks (id)
+                              ON DELETE CASCADE,
+
+                            CONSTRAINT fk_task_comments_author
+                              FOREIGN KEY (author_id) REFERENCES users (id)
+                              ON DELETE CASCADE
+                          );
+
+                          CREATE INDEX idx_task_comments_task_id
+                            ON task_comments (task_id);
