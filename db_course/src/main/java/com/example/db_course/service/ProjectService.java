@@ -1,18 +1,18 @@
 package com.example.db_course.service;
 
-import com.example.db_course.model.ProjectEntity;
-import com.example.db_course.model.ProjectMemberEntity;
-import com.example.db_course.model.UserEntity;
-import com.example.db_course.model.enums.ProjectMemberRole;
-import com.example.db_course.model.enums.ProjectStatus;
+import com.example.db_course.dto.request.ProjectCreateDto;
+import com.example.db_course.mapper.ProjectMapper;
+import com.example.db_course.entity.ProjectEntity;
+import com.example.db_course.entity.ProjectMemberEntity;
+import com.example.db_course.entity.UserEntity;
+import com.example.db_course.entity.enums.ProjectMemberRole;
+import com.example.db_course.mapper.ProjectMemberMapper;
 import com.example.db_course.repository.ProjectMemberRepository;
 import com.example.db_course.repository.ProjectRepository;
 import com.example.db_course.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 
 @Service
 public class ProjectService {
@@ -32,33 +32,25 @@ public class ProjectService {
     }
 
     @Transactional
-    public ResponseEntity<ProjectEntity> createProjectWithOwner(
-            String projectName,
-            String description,
-            Long ownerUserId
+    public ResponseEntity<Void> createProjectWithOwner(
+            ProjectCreateDto projectCreateDto
     ) {
 
-        UserEntity owner = userRepository.findById(ownerUserId)
+        UserEntity owner = userRepository.findById(projectCreateDto.getOwnerUserId())
                 .orElseThrow(() -> new IllegalArgumentException("Owner user not found"));
 
-        ProjectEntity project = new ProjectEntity();
-        project.setName(projectName);
-        project.setDescription(description);
-        project.setStatus(ProjectStatus.ACTIVE);
-        project.setCreatedAt(LocalDateTime.now());
-        project.setUpdatedAt(LocalDateTime.now());
-        project.setDeleted(false);
+        ProjectEntity project = ProjectMapper.fromCreateDto(projectCreateDto);
 
         ProjectEntity savedProject = projectRepository.save(project);
 
-        ProjectMemberEntity member = new ProjectMemberEntity();
-        member.setProject(savedProject);
-        member.setUser(owner);
-        member.setRole(ProjectMemberRole.OWNER);
-        member.setJoinedAt(LocalDateTime.now());
+        ProjectMemberEntity member = ProjectMemberMapper.createProjectMemberEntity(
+                savedProject,
+                owner,
+                ProjectMemberRole.OWNER
+        );
 
         projectMemberRepository.save(member);
 
-        return ResponseEntity.ok(savedProject);
+        return ResponseEntity.ok().build();
     }
 }
