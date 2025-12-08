@@ -3,7 +3,10 @@ package com.example.db_course.entity;
 import com.example.db_course.entity.enums.TaskPriority;
 import com.example.db_course.entity.enums.TaskStatus;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,6 +17,9 @@ import java.util.Set;
 @Table(name = "tasks")
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class TaskEntity {
 
     @Id

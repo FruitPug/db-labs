@@ -1,7 +1,10 @@
 package com.example.db_course.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(
@@ -13,6 +16,9 @@ import lombok.Data;
 )
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class TaskTagEntity {
 
     @Id
