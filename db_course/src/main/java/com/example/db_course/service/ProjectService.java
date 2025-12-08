@@ -11,25 +11,17 @@ import com.example.db_course.repository.ProjectMemberRepository;
 import com.example.db_course.repository.ProjectRepository;
 import com.example.db_course.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final ProjectMemberRepository projectMemberRepository;
-
-    public ProjectService(
-            ProjectRepository projectRepository,
-            UserRepository userRepository,
-            ProjectMemberRepository projectMemberRepository
-    ) {
-        this.projectRepository = projectRepository;
-        this.userRepository = userRepository;
-        this.projectMemberRepository = projectMemberRepository;
-    }
 
     @Transactional
     public ResponseEntity<Void> createProjectWithOwner(
