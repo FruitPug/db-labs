@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 0
+      id: 014-revert-enums-to-varchar
       author: admin
       changes:
         - sql:
