@@ -9,14 +9,13 @@ import java.time.LocalDateTime;
 public class ProjectMapper {
 
     public static ProjectEntity fromCreateDto(ProjectCreateDto projectCreateDto){
-        ProjectEntity project = new ProjectEntity();
-        project.setName(projectCreateDto.getName());
-        project.setDescription(projectCreateDto.getDescription());
-        project.setStatus(ProjectStatus.ACTIVE);
-        project.setCreatedAt(LocalDateTime.now());
-        project.setUpdatedAt(LocalDateTime.now());
-        project.setDeleted(false);
-
-        return project;
+        return ProjectEntity.builder()
+                .name(projectCreateDto.getName())
+                .description(projectCreateDto.getDescription())
+                .status(ProjectStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .deleted(false)
+                .build();
     }
 }

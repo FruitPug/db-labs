@@ -14,12 +14,11 @@ public class ProjectMemberMapper {
             UserEntity user,
             ProjectMemberRole role
     ){
-        ProjectMemberEntity member = new ProjectMemberEntity();
-        member.setProject(project);
-        member.setUser(user);
-        member.setRole(role);
-        member.setJoinedAt(LocalDateTime.now());
-
-        return member;
+        return ProjectMemberEntity.builder()
+                .project(project)
+                .user(user)
+                .role(role)
+                .joinedAt(LocalDateTime.now())
+                .build();
     }
 }
