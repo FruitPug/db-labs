@@ -1,6 +1,6 @@
-package com.example.db_course.model;
+package com.example.db_course.entity;
 
-import com.example.db_course.model.enums.ProjectStatus;
+import com.example.db_course.entity.enums.ProjectStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 

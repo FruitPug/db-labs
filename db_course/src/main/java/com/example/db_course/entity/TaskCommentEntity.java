@@ -1,4 +1,4 @@
-package com.example.db_course.model;
+package com.example.db_course.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;

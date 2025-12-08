@@ -1,7 +1,7 @@
-package com.example.db_course.model;
+package com.example.db_course.entity;
 
-import com.example.db_course.model.enums.TaskPriority;
-import com.example.db_course.model.enums.TaskStatus;
+import com.example.db_course.entity.enums.TaskPriority;
+import com.example.db_course.entity.enums.TaskStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 

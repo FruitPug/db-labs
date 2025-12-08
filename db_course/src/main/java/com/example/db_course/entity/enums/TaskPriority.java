@@ -1,4 +1,4 @@
-package com.example.db_course.model.enums;
+package com.example.db_course.entity.enums;
 
 public enum TaskPriority {
     LOW,
