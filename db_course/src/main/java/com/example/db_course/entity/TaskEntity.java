@@ -38,7 +38,7 @@ public class TaskEntity {
     private UserEntity assignee;
 
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false)
     private String title;
 
     @Column(columnDefinition = "text")
