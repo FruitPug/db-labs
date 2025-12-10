@@ -14,6 +14,7 @@ import java.util.TimeZone;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class IntegrationTestBase {
 
+    @SuppressWarnings("resource")
     private static final PostgreSQLContainer<?> postgres =
             new PostgreSQLContainer<>("postgres")
                     .withDatabaseName("db_course_test")
