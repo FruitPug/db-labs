@@ -9,5 +9,6 @@ public class TagCreateDto {
     @NotBlank
     private String name;
 
+    @NotBlank
     private String color;
 }
