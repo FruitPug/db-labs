@@ -24,9 +24,7 @@ public class ProjectService {
     private final ProjectMemberRepository projectMemberRepository;
 
     @Transactional
-    public ResponseEntity<Void> createProjectWithOwner(
-            ProjectCreateDto projectCreateDto
-    ) {
+    public ResponseEntity<Void> createProjectWithOwner(ProjectCreateDto projectCreateDto) {
 
         UserEntity owner = userRepository.findById(projectCreateDto.getOwnerUserId())
                 .orElseThrow(() -> new IllegalArgumentException("Owner user not found"));
