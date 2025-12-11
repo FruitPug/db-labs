@@ -2,6 +2,7 @@ package com.example.db_course.service;
 
 import com.example.db_course.IntegrationTestBase;
 import com.example.db_course.dto.request.TaskCreateDto;
+import com.example.db_course.dto.request.TaskStatusUpdateDto;
 import com.example.db_course.entity.ProjectEntity;
 import com.example.db_course.entity.TaskEntity;
 import com.example.db_course.entity.UserEntity;
@@ -98,6 +99,50 @@ class TaskServiceIT extends IntegrationTestBase {
         assertThatThrownBy(() -> taskService.createTask(dto))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Creator user not found");
+    }
+
+    @Test
+    @Transactional
+    void updateTaskStatus() {
+        ProjectEntity project = ProjectEntity.builder()
+                .name("Test project")
+                .description("Project description")
+                .status(ProjectStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .deleted(false)
+                .build();
+        projectRepository.save(project);
+
+        UserEntity user = UserEntity.builder()
+                .email("user@test.com")
+                .fullName("Test Tester")
+                .role(UserRole.DEVELOPER)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .deleted(false)
+                .build();
+        userRepository.save(user);
+
+        TaskCreateDto dto = new TaskCreateDto();
+        dto.setProjectId(project.getId());
+        dto.setCreatorUserId(user.getId());
+        dto.setTitle("Task 1");
+        dto.setStatus(TaskStatus.TODO);
+        dto.setPriority(TaskPriority.MEDIUM);
+        taskService.createTask(dto);
+
+        TaskEntity taskEntity = taskRepository.findAll().get(0);
+
+        TaskStatusUpdateDto updateDto = new TaskStatusUpdateDto();
+        updateDto.setTaskId(taskEntity.getId());
+        updateDto.setStatus(TaskStatus.DONE);
+        taskService.updateTaskStatus(updateDto);
+
+        List<TaskEntity> tasks = taskRepository.findAll();
+        assertThat(tasks).hasSize(1);
+        TaskEntity task = tasks.get(0);
+        assertThat(task.getStatus()).isEqualTo(TaskStatus.DONE);
     }
 }
 

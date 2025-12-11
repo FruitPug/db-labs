@@ -1,6 +1,7 @@
 package com.example.db_course.controller;
 
 import com.example.db_course.dto.request.TaskCreateDto;
+import com.example.db_course.dto.request.TaskStatusUpdateDto;
 import com.example.db_course.entity.enums.TaskPriority;
 import com.example.db_course.entity.enums.TaskStatus;
 import com.example.db_course.service.TaskService;
@@ -16,6 +17,7 @@ import tools.jackson.databind.ObjectMapper;
 import java.time.LocalDate;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -52,5 +54,22 @@ class TaskControllerTest {
                 .andExpect(status().isOk());
 
         Mockito.verify(taskService).createTask(any(TaskCreateDto.class));
+    }
+
+    @Test
+    void updateTaskStatus_validRequest_returnsOkAndCallsService() throws Exception {
+        TaskStatusUpdateDto dto = new TaskStatusUpdateDto();
+        dto.setTaskId(1L);
+        dto.setStatus(TaskStatus.DONE);
+
+        Mockito.when(taskService.updateTaskStatus(any()))
+                .thenReturn(org.springframework.http.ResponseEntity.ok().build());
+
+        mockMvc.perform(patch("/tasks/status")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isOk());
+
+        Mockito.verify(taskService).updateTaskStatus(any(TaskStatusUpdateDto.class));
     }
 }
