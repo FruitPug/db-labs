@@ -18,7 +18,7 @@ public class ProjectController {
     public ResponseEntity<Void> createProject(
             @Valid @RequestBody ProjectCreateDto projectCreateDto
     ) {
-        return projectService.createProjectWithOwner(projectCreateDto);
+        return projectService.createProject(projectCreateDto);
     }
 
     @DeleteMapping("/{id}")
