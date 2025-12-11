@@ -20,4 +20,9 @@ public class TaskCommentController {
     ) {
         return taskCommentService.createComment(dto);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> softDeleteComment(@PathVariable Long id) {
+        return taskCommentService.softDeleteComment(id);
+    }
 }

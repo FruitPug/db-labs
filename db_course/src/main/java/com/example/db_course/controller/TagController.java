@@ -20,4 +20,9 @@ public class TagController {
     ) {
         return tagService.createTag(dto);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> softDeleteTag(@PathVariable Long id) {
+        return tagService.softDeleteTag(id);
+    }
 }

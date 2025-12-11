@@ -24,6 +24,7 @@ public class TaskService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
+    private final SoftDeleteHelper softDeleteHelper;
 
     @Transactional
     public ResponseEntity<Void> createTask(TaskCreateDto dto) {
@@ -62,5 +63,15 @@ public class TaskService {
 
 
         return ResponseEntity.ok().build();
+    }
+
+    @Transactional
+    public ResponseEntity<Void> softDeleteTask(Long id) {
+        return softDeleteHelper.softDelete(
+                id,
+                taskRepository::findById,
+                taskRepository::save,
+                () -> new IllegalArgumentException("Task not found")
+        );
     }
 }

@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class TagService {
@@ -19,6 +21,23 @@ public class TagService {
     public ResponseEntity<Void> createTag(TagCreateDto dto) {
         TagEntity tag = TagMapper.fromCreateDto(dto);
         tagRepository.save(tag);
+        return ResponseEntity.ok().build();
+    }
+
+    @Transactional
+    public ResponseEntity<Void> softDeleteTag(Long id) {
+        TagEntity tag = tagRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Tag not found"));
+
+        if (tag.isDeleted()) {
+            return ResponseEntity.ok().build();
+        }
+
+        tag.setDeleted(true);
+        tag.setDeletedAt(LocalDateTime.now());
+
+        tagRepository.save(tag);
+
         return ResponseEntity.ok().build();
     }
 }

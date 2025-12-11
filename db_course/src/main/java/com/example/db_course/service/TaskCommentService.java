@@ -20,6 +20,7 @@ public class TaskCommentService {
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
     private final TaskCommentRepository taskCommentRepository;
+    private final SoftDeleteHelper softDeleteHelper;
 
     @Transactional
     public ResponseEntity<Void> createComment(TaskCommentCreateDto dto) {
@@ -33,5 +34,15 @@ public class TaskCommentService {
         taskCommentRepository.save(comment);
 
         return ResponseEntity.ok().build();
+    }
+
+    @Transactional
+    public ResponseEntity<Void> softDeleteComment(Long id) {
+        return softDeleteHelper.softDelete(
+                id,
+                taskCommentRepository::findById,
+                taskCommentRepository::save,
+                () -> new IllegalArgumentException("Comment not found")
+        );
     }
 }

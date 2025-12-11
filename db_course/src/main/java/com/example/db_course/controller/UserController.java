@@ -20,4 +20,9 @@ public class UserController {
     ) {
         return userService.createUser(dto);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> softDeleteUser(@PathVariable Long id) {
+        return userService.softDeleteUser(id);
+    }
 }

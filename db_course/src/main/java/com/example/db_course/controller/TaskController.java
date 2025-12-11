@@ -28,4 +28,9 @@ public class TaskController {
     ) {
         return taskService.updateTaskStatus(dto);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> softDeleteTask(@PathVariable Long id) {
+        return taskService.softDeleteTask(id);
+    }
 }

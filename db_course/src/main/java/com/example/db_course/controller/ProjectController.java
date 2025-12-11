@@ -20,4 +20,9 @@ public class ProjectController {
     ) {
         return projectService.createProjectWithOwner(projectCreateDto);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> softDeleteProject(@PathVariable Long id) {
+        return projectService.softDeleteProject(id);
+    }
 }
