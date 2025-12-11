@@ -1,6 +1,6 @@
 package com.example.db_course.service.helper;
 
-import com.example.db_course.entity.SoftDeletable;
+import com.example.db_course.entity.interfaces.SoftDeletable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 

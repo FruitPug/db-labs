@@ -1,4 +1,4 @@
-package com.example.db_course.entity;
+package com.example.db_course.entity.interfaces;
 
 import java.time.LocalDateTime;
 

@@ -2,6 +2,7 @@ package com.example.db_course.entity;
 
 import com.example.db_course.entity.enums.TaskPriority;
 import com.example.db_course.entity.enums.TaskStatus;
+import com.example.db_course.entity.interfaces.SoftDeletable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
