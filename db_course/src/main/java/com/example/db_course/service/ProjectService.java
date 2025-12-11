@@ -33,4 +33,15 @@ public class ProjectService {
                 () -> new IllegalArgumentException("Project not found")
         );
     }
+
+    @Transactional
+    public ResponseEntity<Void> hardDeleteProject(Long id) {
+        int affected = projectRepository.hardDeleteById(id);
+
+        if (affected == 0) {
+            throw new IllegalArgumentException("Project not found");
+        }
+
+        return ResponseEntity.ok().build();
+    }
 }

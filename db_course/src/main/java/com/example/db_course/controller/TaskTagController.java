@@ -20,4 +20,9 @@ public class TaskTagController {
     ) {
         return taskTagService.createTaskTag(dto);
     }
+
+    @DeleteMapping("/{id}/hard")
+    public ResponseEntity<Void> hardDeleteProject(@PathVariable Long id) {
+        return taskTagService.hardDeleteProject(id);
+    }
 }

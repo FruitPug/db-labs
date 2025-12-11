@@ -39,4 +39,15 @@ public class ProjectMemberService {
 
         return ResponseEntity.ok().build();
     }
+
+    @Transactional
+    public ResponseEntity<Void> hardDeleteProject(Long id) {
+        int affected = projectMemberRepository.hardDeleteById(id);
+
+        if (affected == 0) {
+            throw new IllegalArgumentException("Project member not found");
+        }
+
+        return ResponseEntity.ok().build();
+    }
 }

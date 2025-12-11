@@ -35,4 +35,15 @@ public class TaskTagService {
 
         return ResponseEntity.ok().build();
     }
+
+    @Transactional
+    public ResponseEntity<Void> hardDeleteProject(Long id) {
+        int affected = taskTagRepository.hardDeleteById(id);
+
+        if (affected == 0) {
+            throw new IllegalArgumentException("Task tag not found");
+        }
+
+        return ResponseEntity.ok().build();
+    }
 }

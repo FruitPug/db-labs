@@ -25,4 +25,9 @@ public class ProjectController {
     public ResponseEntity<Void> softDeleteProject(@PathVariable Long id) {
         return projectService.softDeleteProject(id);
     }
+
+    @DeleteMapping("/{id}/hard")
+    public ResponseEntity<Void> hardDeleteProject(@PathVariable Long id) {
+        return projectService.hardDeleteProject(id);
+    }
 }

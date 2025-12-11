@@ -20,4 +20,9 @@ public class ProjectMemberController {
     ) {
         return projectMemberService.createProjectMember(dto);
     }
+
+    @DeleteMapping("/{id}/hard")
+    public ResponseEntity<Void> hardDeleteProject(@PathVariable Long id) {
+        return projectMemberService.hardDeleteProject(id);
+    }
 }
