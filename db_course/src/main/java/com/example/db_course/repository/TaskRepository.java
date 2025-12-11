@@ -11,5 +11,5 @@ import java.util.Optional;
 public interface TaskRepository extends JpaRepository<TaskEntity, Long> {
 
     @Query(value = "select * from tasks where id = :id", nativeQuery = true)
-    Optional<TaskEntity> findRawById(Long aLong);
+    Optional<TaskEntity> findRawById(Long id);
 }
