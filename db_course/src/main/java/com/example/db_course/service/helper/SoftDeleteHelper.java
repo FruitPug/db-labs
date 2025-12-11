@@ -1,4 +1,4 @@
-package com.example.db_course.service;
+package com.example.db_course.service.helper;
 
 import com.example.db_course.entity.SoftDeletable;
 import org.springframework.http.ResponseEntity;
