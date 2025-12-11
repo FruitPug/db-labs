@@ -1,6 +1,7 @@
 package com.example.db_course.controller;
 
 import com.example.db_course.dto.request.TaskCreateDto;
+import com.example.db_course.dto.request.TaskStatusUpdateDto;
 import com.example.db_course.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,5 +20,12 @@ public class TaskController {
             @Valid @RequestBody TaskCreateDto dto
     ) {
         return taskService.createTask(dto);
+    }
+
+    @PatchMapping("/status")
+    public ResponseEntity<Void> updateTaskStatus(
+            @Valid @RequestBody TaskStatusUpdateDto dto
+    ) {
+        return taskService.updateTaskStatus(dto);
     }
 }

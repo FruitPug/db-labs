@@ -73,6 +73,10 @@ public class TaskEntity {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
+    @Version
+    @Column(nullable = false)
+    private Long version;
+
 
     @OneToMany(mappedBy = "task")
     private List<TaskCommentEntity> comments;
