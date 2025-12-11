@@ -26,7 +26,6 @@ class ProjectCreateDtoValidationTest {
         ProjectCreateDto dto = new ProjectCreateDto();
         dto.setName("");
         dto.setDescription("Desc");
-        dto.setOwnerUserId(1L);
 
         Set<ConstraintViolation<ProjectCreateDto>> violations = validator.validate(dto);
 
@@ -38,7 +37,6 @@ class ProjectCreateDtoValidationTest {
         ProjectCreateDto dto = new ProjectCreateDto();
         dto.setName("Valid");
         dto.setDescription("Desc");
-        dto.setOwnerUserId(1L);
 
         Set<ConstraintViolation<ProjectCreateDto>> violations = validator.validate(dto);
 

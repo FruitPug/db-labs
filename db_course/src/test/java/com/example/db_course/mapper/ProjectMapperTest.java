@@ -14,7 +14,6 @@ class ProjectMapperTest {
         ProjectCreateDto dto = new ProjectCreateDto();
         dto.setName("Project name");
         dto.setDescription("Description");
-        dto.setOwnerUserId(1L);
 
         ProjectEntity entity = ProjectMapper.fromCreateDto(dto);
 

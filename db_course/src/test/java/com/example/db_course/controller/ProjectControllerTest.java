@@ -32,9 +32,8 @@ class ProjectControllerTest {
         ProjectCreateDto dto = new ProjectCreateDto();
         dto.setName("Test project");
         dto.setDescription("Project description");
-        dto.setOwnerUserId(1L);
 
-        Mockito.when(projectService.createProjectWithOwner(any()))
+        Mockito.when(projectService.createProject(any()))
                 .thenReturn(org.springframework.http.ResponseEntity.ok().build());
 
         mockMvc.perform(post("/projects")
@@ -42,6 +41,6 @@ class ProjectControllerTest {
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk());
 
-        Mockito.verify(projectService).createProjectWithOwner(any(ProjectCreateDto.class));
+        Mockito.verify(projectService).createProject(any(ProjectCreateDto.class));
     }
 }

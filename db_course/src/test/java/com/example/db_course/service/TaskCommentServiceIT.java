@@ -1,17 +1,19 @@
 package com.example.db_course.service;
 
+import com.example.db_course.EntityCreator;
 import com.example.db_course.IntegrationTestBase;
 import com.example.db_course.dto.request.TaskCommentCreateDto;
 import com.example.db_course.entity.*;
 import com.example.db_course.entity.enums.*;
 import com.example.db_course.repository.*;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -32,44 +34,21 @@ public class TaskCommentServiceIT extends IntegrationTestBase {
     @Autowired
     private TaskRepository taskRepository;
 
+    @Autowired
+    private EntityManager entityManager;
+
     @Test
     @Transactional
     void createTaskComment() {
-        UserEntity user = UserEntity.builder()
-                .email("user@test.com")
-                .fullName("Test Tester")
-                .role(UserRole.DEVELOPER)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .deleted(false)
-                .build();
+        UserEntity user = EntityCreator.getUserEntity();
 
         userRepository.save(user);
 
-        ProjectEntity project = ProjectEntity.builder()
-                .name("Test_project")
-                .description("Project description")
-                .status(ProjectStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .deleted(false)
-                .build();
+        ProjectEntity project = EntityCreator.getProjectEntity();
 
         projectRepository.save(project);
 
-        TaskEntity task = TaskEntity.builder()
-                .project(project)
-                .title("Test task")
-                .description("Task description")
-                .status(TaskStatus.IN_PROGRESS)
-                .priority(TaskPriority.MEDIUM)
-                .creator(user)
-                .assignee(user)
-                .dueDate(LocalDate.now())
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .deleted(false)
-                .build();
+        TaskEntity task = EntityCreator.getTaskEntity(user, project);
 
         taskRepository.save(task);
 
@@ -91,14 +70,7 @@ public class TaskCommentServiceIT extends IntegrationTestBase {
     @Test
     @Transactional
     void createTaskComment_whenTaskMissing() {
-        UserEntity user = UserEntity.builder()
-                .email("user@test.com")
-                .fullName("Test Tester")
-                .role(UserRole.DEVELOPER)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .deleted(false)
-                .build();
+        UserEntity user = EntityCreator.getUserEntity();
 
         TaskCommentCreateDto dto = new TaskCommentCreateDto();
         dto.setTaskId(999999L);
@@ -108,5 +80,38 @@ public class TaskCommentServiceIT extends IntegrationTestBase {
         assertThatThrownBy(() -> taskCommentService.createComment(dto))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Task not found");
+    }
+
+    @Test
+    @Transactional
+    void softDeleteTaskComment_marksDeletedAndFiltersFromFindById() {
+        ProjectEntity project = EntityCreator.getProjectEntity();
+        projectRepository.save(project);
+
+        UserEntity user = EntityCreator.getUserEntity();
+        userRepository.save(user);
+
+        TaskEntity task = EntityCreator.getTaskEntity(user, project);
+        taskRepository.save(task);
+
+        TaskCommentEntity taskComment = EntityCreator.getTaskCommentEntity(user, task);
+        taskCommentRepository.save(taskComment);
+
+        Long id = taskComment.getId();
+
+        assertThat(taskCommentRepository.findById(id)).isPresent();
+
+        ResponseEntity<Void> response = taskCommentService.softDeleteComment(id);
+        assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
+
+        entityManager.flush();
+        entityManager.clear();
+
+        assertThat(taskCommentRepository.findById(id)).isEmpty();
+
+        Optional<TaskCommentEntity> raw = taskCommentRepository.findRawById(id);
+        assertThat(raw).isPresent();
+        assertThat(raw.get().isDeleted()).isTrue();
+        assertThat(raw.get().getDeletedAt()).isNotNull();
     }
 }

@@ -1,13 +1,12 @@
 package com.example.db_course.service;
 
+import com.example.db_course.EntityCreator;
 import com.example.db_course.IntegrationTestBase;
 import com.example.db_course.dto.request.ProjectMemberCreateDto;
 import com.example.db_course.entity.ProjectEntity;
 import com.example.db_course.entity.ProjectMemberEntity;
 import com.example.db_course.entity.UserEntity;
 import com.example.db_course.entity.enums.ProjectMemberRole;
-import com.example.db_course.entity.enums.ProjectStatus;
-import com.example.db_course.entity.enums.UserRole;
 import com.example.db_course.repository.ProjectMemberRepository;
 import com.example.db_course.repository.ProjectRepository;
 import com.example.db_course.repository.UserRepository;
@@ -15,7 +14,6 @@ import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
@@ -37,24 +35,10 @@ public class ProjectMemberServiceIT extends IntegrationTestBase {
     @Test
     @Transactional
     void createProjectMember() {
-        ProjectEntity project = ProjectEntity.builder()
-                .name("Test project")
-                .description("Project description")
-                .status(ProjectStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .deleted(false)
-                .build();
+        ProjectEntity project = EntityCreator.getProjectEntity();
         projectRepository.save(project);
 
-        UserEntity user = UserEntity.builder()
-                .email("user@test.com")
-                .fullName("Test Tester")
-                .role(UserRole.DEVELOPER)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .deleted(false)
-                .build();
+        UserEntity user = EntityCreator.getUserEntity();
         userRepository.save(user);
 
         ProjectMemberCreateDto dto = new ProjectMemberCreateDto();
@@ -75,14 +59,7 @@ public class ProjectMemberServiceIT extends IntegrationTestBase {
     @Test
     @Transactional
     void createProjectMember_whenProjectMissing() {
-        UserEntity user = UserEntity.builder()
-                .email("user@test.com")
-                .fullName("Test Tester")
-                .role(UserRole.DEVELOPER)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .deleted(false)
-                .build();
+        UserEntity user = EntityCreator.getUserEntity();
         userRepository.save(user);
 
         ProjectMemberCreateDto dto = new ProjectMemberCreateDto();

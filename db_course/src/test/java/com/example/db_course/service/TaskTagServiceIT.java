@@ -1,5 +1,6 @@
 package com.example.db_course.service;
 
+import com.example.db_course.EntityCreator;
 import com.example.db_course.IntegrationTestBase;
 import com.example.db_course.dto.request.TaskTagCreateDto;
 import com.example.db_course.entity.*;
@@ -9,8 +10,6 @@ import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
@@ -38,51 +37,16 @@ public class TaskTagServiceIT extends IntegrationTestBase {
     @Test
     @Transactional
     void createTaskComment() {
-        UserEntity user = UserEntity.builder()
-                .email("user@test.com")
-                .fullName("Test Tester")
-                .role(UserRole.DEVELOPER)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .deleted(false)
-                .build();
-
+        UserEntity user = EntityCreator.getUserEntity();
         userRepository.save(user);
 
-        ProjectEntity project = ProjectEntity.builder()
-                .name("Test_project")
-                .description("Project description")
-                .status(ProjectStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .deleted(false)
-                .build();
-
+        ProjectEntity project = EntityCreator.getProjectEntity();
         projectRepository.save(project);
 
-        TaskEntity task = TaskEntity.builder()
-                .project(project)
-                .title("Test task")
-                .description("Task description")
-                .status(TaskStatus.IN_PROGRESS)
-                .priority(TaskPriority.MEDIUM)
-                .creator(user)
-                .assignee(user)
-                .dueDate(LocalDate.now())
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .deleted(false)
-                .build();
-
+        TaskEntity task = EntityCreator.getTaskEntity(user, project);
         taskRepository.save(task);
 
-        TagEntity tag = TagEntity.builder()
-                .name("test_tag")
-                .color("red")
-                .createdAt(LocalDateTime.now())
-                .deleted(false)
-                .build();
-
+        TagEntity tag = EntityCreator.getTagEntity();
         tagRepository.save(tag);
 
         TaskTagCreateDto dto = new TaskTagCreateDto();
@@ -101,13 +65,7 @@ public class TaskTagServiceIT extends IntegrationTestBase {
     @Test
     @Transactional
     void createTaskTag_whenTaskIsMissing() {
-        TagEntity tag = TagEntity.builder()
-                .name("test_tag")
-                .color("red")
-                .createdAt(LocalDateTime.now())
-                .deleted(false)
-                .build();
-
+        TagEntity tag = EntityCreator.getTagEntity();
         tagRepository.save(tag);
 
         TaskTagCreateDto dto = new TaskTagCreateDto();

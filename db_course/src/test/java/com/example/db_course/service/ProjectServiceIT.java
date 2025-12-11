@@ -1,21 +1,18 @@
 package com.example.db_course.service;
 
+import com.example.db_course.EntityCreator;
 import com.example.db_course.IntegrationTestBase;
 import com.example.db_course.dto.request.ProjectCreateDto;
 import com.example.db_course.entity.ProjectEntity;
-import com.example.db_course.entity.ProjectMemberEntity;
-import com.example.db_course.entity.UserEntity;
-import com.example.db_course.entity.enums.ProjectMemberRole;
-import com.example.db_course.entity.enums.UserRole;
-import com.example.db_course.repository.ProjectMemberRepository;
 import com.example.db_course.repository.ProjectRepository;
-import com.example.db_course.repository.UserRepository;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -25,61 +22,48 @@ class ProjectServiceIT extends IntegrationTestBase {
     private ProjectService projectService;
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
     private ProjectRepository projectRepository;
 
     @Autowired
-    private ProjectMemberRepository projectMemberRepository;
+    private EntityManager entityManager;
 
     @Test
     @Transactional
-    void createProjectWithOwner() {
-        UserEntity user = UserEntity.builder()
-                .email("user@test.com")
-                .fullName("Test Tester")
-                .role(UserRole.DEVELOPER)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .deleted(false)
-                .build();
-        userRepository.save(user);
-
+    void createProject() {
         ProjectCreateDto dto = new ProjectCreateDto();
         dto.setName("Test Project");
         dto.setDescription("Test description");
-        dto.setOwnerUserId(user.getId());
 
-        projectService.createProjectWithOwner(dto);
+        projectService.createProject(dto);
 
         List<ProjectEntity> projects = projectRepository.findAll();
         assertThat(projects).hasSize(1);
         ProjectEntity project = projects.get(0);
         assertThat(project.getName()).isEqualTo("Test Project");
         assertThat(project.isDeleted()).isFalse();
-
-        List<ProjectMemberEntity> members = projectMemberRepository.findAll();
-        assertThat(members).hasSize(1);
-        ProjectMemberEntity member = members.get(0);
-        assertThat(member.getProject().getId()).isEqualTo(project.getId());
-        assertThat(member.getUser().getId()).isEqualTo(user.getId());
-        assertThat(member.getRole()).isEqualTo(ProjectMemberRole.OWNER);
     }
 
     @Test
     @Transactional
-    void createProjectWithOwner_whenOwnerMissing() {
-        ProjectCreateDto dto = new ProjectCreateDto();
-        dto.setName("Bad Project");
-        dto.setDescription("Should fail");
-        dto.setOwnerUserId(999999L);
+    void softDeleteProject_marksDeletedAndFiltersFromFindById() {
+        ProjectEntity project = EntityCreator.getProjectEntity();
+        projectRepository.save(project);
 
-        assertThatThrownBy(() -> projectService.createProjectWithOwner(dto))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Owner user not found");
+        Long id = project.getId();
 
-        assertThat(projectRepository.count()).isZero();
-        assertThat(projectMemberRepository.count()).isZero();
+        assertThat(projectRepository.findById(id)).isPresent();
+
+        ResponseEntity<Void> response = projectService.softDeleteProject(id);
+        assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
+
+        entityManager.flush();
+        entityManager.clear();
+
+        assertThat(projectRepository.findById(id)).isEmpty();
+
+        Optional<ProjectEntity> raw = projectRepository.findRawById(id);
+        assertThat(raw).isPresent();
+        assertThat(raw.get().isDeleted()).isTrue();
+        assertThat(raw.get().getDeletedAt()).isNotNull();
     }
 }
