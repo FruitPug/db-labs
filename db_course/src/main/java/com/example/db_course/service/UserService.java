@@ -35,6 +35,7 @@ public class UserService {
         );
     }
 
+    @Transactional
     public ResponseEntity<UserResponseDto> getUserById(Long id) {
         UserEntity user = userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("User not found"));
         return ResponseEntity.ok(UserMapper.toResponseDto(user));
