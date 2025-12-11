@@ -6,9 +6,11 @@ import com.example.db_course.dto.request.TaskTagCreateDto;
 import com.example.db_course.entity.*;
 import com.example.db_course.entity.enums.*;
 import com.example.db_course.repository.*;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -33,6 +35,9 @@ public class TaskTagServiceIT extends IntegrationTestBase {
 
     @Autowired
     private TagRepository tagRepository;
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Test
     @Transactional
@@ -75,5 +80,46 @@ public class TaskTagServiceIT extends IntegrationTestBase {
         assertThatThrownBy(() -> taskTagService.createTaskTag(dto))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Task not found");
+    }
+
+    @Test
+    @Transactional
+    void hardDeleteTaskTag_physicallyRemovesRow() {
+        UserEntity user = EntityCreator.getUserEntity();
+        userRepository.save(user);
+
+        ProjectEntity project = EntityCreator.getProjectEntity();
+        projectRepository.save(project);
+
+        TaskEntity task = EntityCreator.getTaskEntity(user, project);
+        taskRepository.save(task);
+
+        TagEntity tag = EntityCreator.getTagEntity();
+        tagRepository.save(tag);
+
+        TaskTagEntity taskTag = EntityCreator.getTaskTagEntity(tag, task);
+        taskTagRepository.save(taskTag);
+
+        Long id = taskTag.getId();
+
+        assertThat(taskTagRepository.findRawById(id)).isPresent();
+
+        ResponseEntity<Void> response = taskTagService.hardDeleteProject(id);
+        assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
+
+        entityManager.flush();
+        entityManager.clear();
+
+        assertThat(taskTagRepository.findRawById(id)).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    void hardDeleteProject_whenNotFound_throwsException() {
+        Long nonExistingId = 999999L;
+
+        assertThatThrownBy(() -> taskTagService.hardDeleteProject(nonExistingId))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Task tag not found");
     }
 }

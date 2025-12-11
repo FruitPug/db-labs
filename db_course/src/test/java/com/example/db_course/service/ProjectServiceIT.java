@@ -66,4 +66,33 @@ class ProjectServiceIT extends IntegrationTestBase {
         assertThat(raw.get().isDeleted()).isTrue();
         assertThat(raw.get().getDeletedAt()).isNotNull();
     }
+
+    @Test
+    @Transactional
+    void hardDeleteProject_physicallyRemovesRow() {
+        ProjectEntity project = EntityCreator.getProjectEntity();
+        projectRepository.save(project);
+
+        Long id = project.getId();
+
+        assertThat(projectRepository.findRawById(id)).isPresent();
+
+        ResponseEntity<Void> response = projectService.hardDeleteProject(id);
+        assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
+
+        entityManager.flush();
+        entityManager.clear();
+
+        assertThat(projectRepository.findRawById(id)).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    void hardDeleteProject_whenNotFound_throwsException() {
+        Long nonExistingId = 999999L;
+
+        assertThatThrownBy(() -> projectService.hardDeleteProject(nonExistingId))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Project not found");
+    }
 }

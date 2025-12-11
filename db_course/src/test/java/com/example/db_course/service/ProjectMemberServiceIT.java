@@ -10,9 +10,11 @@ import com.example.db_course.entity.enums.ProjectMemberRole;
 import com.example.db_course.repository.ProjectMemberRepository;
 import com.example.db_course.repository.ProjectRepository;
 import com.example.db_course.repository.UserRepository;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -31,6 +33,9 @@ public class ProjectMemberServiceIT extends IntegrationTestBase {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Test
     @Transactional
@@ -70,5 +75,40 @@ public class ProjectMemberServiceIT extends IntegrationTestBase {
         assertThatThrownBy(() -> projectMemberService.createProjectMember(dto))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Project not found");
+    }
+
+    @Test
+    @Transactional
+    void hardDeleteProjectMember_physicallyRemovesRow() {
+        ProjectEntity project = EntityCreator.getProjectEntity();
+        projectRepository.save(project);
+
+        UserEntity user = EntityCreator.getUserEntity();
+        userRepository.save(user);
+
+        ProjectMemberEntity member = EntityCreator.getProjectMemberEntity(user, project);
+        projectMemberRepository.save(member);
+
+        Long id = member.getId();
+
+        assertThat(projectMemberRepository.findRawById(id)).isPresent();
+
+        ResponseEntity<Void> response = projectMemberService.hardDeleteProject(id);
+        assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
+
+        entityManager.flush();
+        entityManager.clear();
+
+        assertThat(projectRepository.findRawById(id)).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    void hardDeleteProject_whenNotFound_throwsException() {
+        Long nonExistingId = 999999L;
+
+        assertThatThrownBy(() -> projectMemberService.hardDeleteProject(nonExistingId))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Project member not found");
     }
 }

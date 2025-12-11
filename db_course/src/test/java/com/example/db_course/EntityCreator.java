@@ -66,6 +66,13 @@ public class EntityCreator {
                 .build();
     }
 
+    public static TaskTagEntity getTaskTagEntity(TagEntity tag, TaskEntity task){
+        return TaskTagEntity.builder()
+                .task(task)
+                .tag(tag)
+                .build();
+    }
+
     public static TagEntity getTagEntity() {
         return TagEntity.builder()
                 .name("Test tag")
