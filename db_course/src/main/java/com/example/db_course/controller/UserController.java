@@ -1,7 +1,6 @@
 package com.example.db_course.controller;
 
 import com.example.db_course.dto.request.UserCreateDto;
-import com.example.db_course.dto.responce.UserResponseDto;
 import com.example.db_course.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,11 +13,6 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-
-    @GetMapping("/{id}")
-    public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id) {
-        return userService.getUserById(id);
-    }
 
     @PostMapping
     public ResponseEntity<Void> createUser(
