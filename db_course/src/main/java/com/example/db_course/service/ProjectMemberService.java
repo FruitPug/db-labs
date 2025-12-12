@@ -4,6 +4,7 @@ import com.example.db_course.dto.request.ProjectMemberCreateDto;
 import com.example.db_course.entity.ProjectEntity;
 import com.example.db_course.entity.ProjectMemberEntity;
 import com.example.db_course.entity.UserEntity;
+import com.example.db_course.entity.enums.ProjectMemberRole;
 import com.example.db_course.mapper.ProjectMemberMapper;
 import com.example.db_course.repository.ProjectMemberRepository;
 import com.example.db_course.repository.ProjectRepository;
@@ -28,6 +29,10 @@ public class ProjectMemberService {
 
         UserEntity user = userRepository.findById(dto.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        if (projectMemberRepository.findByProjectAndRole(project, ProjectMemberRole.OWNER).isPresent()) {
+            throw new IllegalStateException("Project can only have one owner");
+        }
 
         ProjectMemberEntity member = ProjectMemberMapper.createProjectMemberEntity(
                 project,
