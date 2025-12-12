@@ -3,14 +3,19 @@ package com.example.db_course.service;
 import com.example.db_course.EntityCreator;
 import com.example.db_course.IntegrationTestBase;
 import com.example.db_course.dto.request.ProjectCreateDto;
+import com.example.db_course.dto.response.ProjectResponseDto;
 import com.example.db_course.entity.ProjectEntity;
+import com.example.db_course.entity.enums.ProjectStatus;
 import com.example.db_course.repository.ProjectRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -94,5 +99,52 @@ class ProjectServiceIT extends IntegrationTestBase {
         assertThatThrownBy(() -> projectService.hardDeleteProject(nonExistingId))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Project not found");
+    }
+
+    @Test
+    @Transactional
+    void getTasksFiltered_filtersByStatusAndProjectAndExcludesSoftDeleted() {
+        ProjectEntity project1 = ProjectEntity.builder()
+                .name("Test project 1")
+                .description("desc1")
+                .status(ProjectStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .deleted(false)
+                .build();
+        projectRepository.save(project1);
+
+        ProjectEntity project2 = ProjectEntity.builder()
+                .name("Test project 2")
+                .description("desc2")
+                .status(ProjectStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .deleted(true)
+                .deletedAt(LocalDateTime.now())
+                .build();
+        projectRepository.save(project2);
+
+        ProjectEntity project3 = ProjectEntity.builder()
+                .name("Test project 3")
+                .description("desc3")
+                .status(ProjectStatus.ARCHIVED)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .deleted(false)
+                .build();
+        projectRepository.save(project3);
+
+        PageRequest pageable = PageRequest.of(0, 10);
+        Page<ProjectResponseDto> page = projectService
+                .getProjectsFiltered(ProjectStatus.ACTIVE, pageable)
+                .getBody();
+
+        assertThat(page).isNotNull();
+        assertThat(page.getTotalElements()).isEqualTo(1);
+        ProjectResponseDto dto = page.getContent().get(0);
+        assertThat(dto.getName()).isEqualTo("Test project 1");
+        assertThat(dto.getDescription()).isEqualTo("desc1");
+        assertThat(dto.getStatus()).isEqualTo(ProjectStatus.ACTIVE);
     }
 }
