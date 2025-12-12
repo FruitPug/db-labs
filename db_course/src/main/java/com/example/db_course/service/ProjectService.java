@@ -1,14 +1,21 @@
 package com.example.db_course.service;
 
 import com.example.db_course.dto.request.ProjectCreateDto;
+import com.example.db_course.dto.request.ProjectStatusUpdateDto;
+import com.example.db_course.dto.response.ProjectResponseDto;
+import com.example.db_course.entity.enums.ProjectStatus;
 import com.example.db_course.mapper.ProjectMapper;
 import com.example.db_course.entity.ProjectEntity;
 import com.example.db_course.repository.ProjectRepository;
 import com.example.db_course.service.helper.SoftDeleteHelper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -43,5 +50,30 @@ public class ProjectService {
         }
 
         return ResponseEntity.ok().build();
+    }
+
+    @Transactional
+    public ResponseEntity<Void> updateProjectStatus(ProjectStatusUpdateDto dto) {
+        ProjectEntity project = projectRepository.findById(dto.getProjectId())
+                .orElseThrow(() -> new IllegalArgumentException("Project not found"));
+
+        project.setStatus(dto.getStatus());
+        project.setUpdatedAt(LocalDateTime.now());
+
+        projectRepository.save(project);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @Transactional
+    public ResponseEntity<Page<ProjectResponseDto>> getProjectsFiltered(
+            ProjectStatus status,
+            Pageable pageable
+    ) {
+        Page<ProjectEntity> page = projectRepository.searchProjectsFiltered(status, pageable);
+
+        Page<ProjectResponseDto> dtoPage = page.map(ProjectMapper::toResponseDto);
+
+        return ResponseEntity.ok(dtoPage);
     }
 }

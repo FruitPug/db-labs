@@ -1,6 +1,7 @@
 package com.example.db_course.mapper;
 
 import com.example.db_course.dto.request.ProjectCreateDto;
+import com.example.db_course.dto.response.ProjectResponseDto;
 import com.example.db_course.entity.ProjectEntity;
 import com.example.db_course.entity.enums.ProjectStatus;
 
@@ -16,6 +17,14 @@ public class ProjectMapper {
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .deleted(false)
+                .build();
+    }
+
+    public static ProjectResponseDto toResponseDto(ProjectEntity projectEntity){
+        return ProjectResponseDto.builder()
+                .name(projectEntity.getName())
+                .description(projectEntity.getDescription())
+                .status(projectEntity.getStatus())
                 .build();
     }
 }
