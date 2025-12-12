@@ -1,6 +1,7 @@
 package com.example.db_course.controller;
 
 import com.example.db_course.dto.request.ProjectCreateDto;
+import com.example.db_course.dto.request.ProjectCreateWithOwnerDto;
 import com.example.db_course.dto.request.ProjectStatusUpdateDto;
 import com.example.db_course.dto.response.ProjectResponseDto;
 import com.example.db_course.entity.enums.ProjectStatus;
@@ -32,6 +33,13 @@ public class ProjectController {
             @Valid @RequestBody ProjectCreateDto projectCreateDto
     ) {
         return projectService.createProject(projectCreateDto);
+    }
+
+    @PostMapping("/with-owner")
+    public ResponseEntity<Void> createProjectWithOwner(
+            @Valid @RequestBody ProjectCreateWithOwnerDto projectCreateWithOwnerDto
+    ) {
+        return projectService.createProjectWithOwner(projectCreateWithOwnerDto);
     }
 
     @PatchMapping("/status")

@@ -3,10 +3,16 @@ package com.example.db_course.service;
 import com.example.db_course.EntityCreator;
 import com.example.db_course.IntegrationTestBase;
 import com.example.db_course.dto.request.ProjectCreateDto;
+import com.example.db_course.dto.request.ProjectCreateWithOwnerDto;
 import com.example.db_course.dto.response.ProjectResponseDto;
 import com.example.db_course.entity.ProjectEntity;
+import com.example.db_course.entity.ProjectMemberEntity;
+import com.example.db_course.entity.UserEntity;
+import com.example.db_course.entity.enums.ProjectMemberRole;
 import com.example.db_course.entity.enums.ProjectStatus;
+import com.example.db_course.repository.ProjectMemberRepository;
 import com.example.db_course.repository.ProjectRepository;
+import com.example.db_course.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
@@ -30,6 +36,12 @@ class ProjectServiceIT extends IntegrationTestBase {
     private ProjectRepository projectRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private ProjectMemberRepository projectMemberRepository;
+
+    @Autowired
     private EntityManager entityManager;
 
     @Test
@@ -46,6 +58,31 @@ class ProjectServiceIT extends IntegrationTestBase {
         ProjectEntity project = projects.get(0);
         assertThat(project.getName()).isEqualTo("Test Project");
         assertThat(project.isDeleted()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    void createProjectWithOwner() {
+        UserEntity user = EntityCreator.getUserEntity();
+        userRepository.save(user);
+
+        ProjectCreateWithOwnerDto dto = new ProjectCreateWithOwnerDto();
+        dto.setName("Test Project");
+        dto.setDescription("Test description");
+        dto.setOwnerId(user.getId());
+
+        projectService.createProjectWithOwner(dto);
+
+        List<ProjectEntity> projects = projectRepository.findAll();
+        assertThat(projects).hasSize(1);
+        ProjectEntity project = projects.get(0);
+        Optional<ProjectMemberEntity> memberEntity = projectMemberRepository.findByUserAndProject(user, project);
+
+        assertThat(memberEntity).isPresent();
+        assertThat(project.getName()).isEqualTo(dto.getName());
+        assertThat(project.getDescription()).isEqualTo(dto.getDescription());
+        assertThat(project.isDeleted()).isFalse();
+        assertThat(memberEntity.get().getRole()).isEqualTo(ProjectMemberRole.OWNER);
     }
 
     @Test

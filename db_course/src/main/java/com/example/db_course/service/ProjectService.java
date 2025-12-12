@@ -1,12 +1,19 @@
 package com.example.db_course.service;
 
 import com.example.db_course.dto.request.ProjectCreateDto;
+import com.example.db_course.dto.request.ProjectCreateWithOwnerDto;
 import com.example.db_course.dto.request.ProjectStatusUpdateDto;
 import com.example.db_course.dto.response.ProjectResponseDto;
+import com.example.db_course.entity.ProjectMemberEntity;
+import com.example.db_course.entity.UserEntity;
+import com.example.db_course.entity.enums.ProjectMemberRole;
 import com.example.db_course.entity.enums.ProjectStatus;
 import com.example.db_course.mapper.ProjectMapper;
 import com.example.db_course.entity.ProjectEntity;
+import com.example.db_course.mapper.ProjectMemberMapper;
+import com.example.db_course.repository.ProjectMemberRepository;
 import com.example.db_course.repository.ProjectRepository;
+import com.example.db_course.repository.UserRepository;
 import com.example.db_course.service.helper.SoftDeleteHelper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -22,12 +29,35 @@ import java.time.LocalDateTime;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final UserRepository userRepository;
+    private final ProjectMemberRepository projectMemberRepository;
     private final SoftDeleteHelper softDeleteHelper;
 
     @Transactional
     public ResponseEntity<Void> createProject(ProjectCreateDto projectCreateDto) {
         ProjectEntity project = ProjectMapper.fromCreateDto(projectCreateDto);
         projectRepository.save(project);
+        return ResponseEntity.ok().build();
+    }
+
+    @Transactional
+    public ResponseEntity<Void> createProjectWithOwner(ProjectCreateWithOwnerDto projectCreateWithOwnerDto) {
+
+        UserEntity owner = userRepository.findById(projectCreateWithOwnerDto.getOwnerId())
+                .orElseThrow(() -> new IllegalArgumentException("Owner user not found"));
+
+        ProjectEntity project = ProjectMapper.fromCreateDto(projectCreateWithOwnerDto);
+
+        ProjectEntity savedProject = projectRepository.save(project);
+
+        ProjectMemberEntity member = ProjectMemberMapper.createProjectMemberEntity(
+                savedProject,
+                owner,
+                ProjectMemberRole.OWNER
+        );
+
+        projectMemberRepository.save(member);
+
         return ResponseEntity.ok().build();
     }
 
