@@ -1,6 +1,7 @@
 package com.example.db_course.mapper;
 
 import com.example.db_course.dto.request.TaskCreateDto;
+import com.example.db_course.dto.response.TaskResponseDto;
 import com.example.db_course.entity.ProjectEntity;
 import com.example.db_course.entity.TaskEntity;
 import com.example.db_course.entity.UserEntity;
@@ -27,6 +28,18 @@ public class TaskMapper {
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .deleted(false)
+                .build();
+    }
+
+    public static TaskResponseDto toResponseDto(TaskEntity task) {
+        return TaskResponseDto.builder()
+                .title(task.getTitle())
+                .description(task.getDescription())
+                .status(task.getStatus())
+                .priority(task.getPriority())
+                .projectId(task.getProject().getId())
+                .creatorUserId(task.getCreator().getId())
+                .assigneeUserId(task.getAssignee().getId())
                 .build();
     }
 }

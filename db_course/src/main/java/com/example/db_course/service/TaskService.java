@@ -2,9 +2,11 @@ package com.example.db_course.service;
 
 import com.example.db_course.dto.request.TaskCreateDto;
 import com.example.db_course.dto.request.TaskStatusUpdateDto;
+import com.example.db_course.dto.response.TaskResponseDto;
 import com.example.db_course.entity.ProjectEntity;
 import com.example.db_course.entity.TaskEntity;
 import com.example.db_course.entity.UserEntity;
+import com.example.db_course.entity.enums.TaskPriority;
 import com.example.db_course.entity.enums.TaskStatus;
 import com.example.db_course.mapper.TaskMapper;
 import com.example.db_course.repository.ProjectRepository;
@@ -13,6 +15,8 @@ import com.example.db_course.repository.UserRepository;
 import com.example.db_course.service.helper.SoftDeleteHelper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -62,7 +66,6 @@ public class TaskService {
 
         taskRepository.save(task);
 
-
         return ResponseEntity.ok().build();
     }
 
@@ -74,5 +77,20 @@ public class TaskService {
                 taskRepository::save,
                 () -> new IllegalArgumentException("Task not found")
         );
+    }
+
+    @Transactional
+    public ResponseEntity<Page<TaskResponseDto>> getTasksFiltered(
+            TaskStatus status,
+            TaskPriority priority,
+            Long projectId,
+            Long assigneeId,
+            Pageable pageable
+    ) {
+        Page<TaskEntity> page = taskRepository.searchTasksFiltered(status, priority, projectId, assigneeId, pageable);
+
+        Page<TaskResponseDto> dtoPage = page.map(TaskMapper::toResponseDto);
+
+        return ResponseEntity.ok(dtoPage);
     }
 }
