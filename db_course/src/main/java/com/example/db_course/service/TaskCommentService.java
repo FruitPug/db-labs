@@ -1,6 +1,7 @@
 package com.example.db_course.service;
 
 import com.example.db_course.dto.request.TaskCommentCreateDto;
+import com.example.db_course.dto.response.TaskCommentResponseDto;
 import com.example.db_course.entity.TaskCommentEntity;
 import com.example.db_course.entity.TaskEntity;
 import com.example.db_course.entity.UserEntity;
@@ -11,6 +12,8 @@ import com.example.db_course.repository.UserRepository;
 import com.example.db_course.service.helper.SoftDeleteHelper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -45,5 +48,22 @@ public class TaskCommentService {
                 taskCommentRepository::save,
                 () -> new IllegalArgumentException("Comment not found")
         );
+    }
+
+    @Transactional
+    public ResponseEntity<Page<TaskCommentResponseDto>> getCommentsFiltered(
+            Long taskId,
+            Long userId,
+            Pageable pageable
+    ) {
+        Page<TaskCommentEntity> page = taskCommentRepository.searchCommentsFiltered(
+                taskId,
+                userId,
+                pageable
+        );
+
+        Page<TaskCommentResponseDto> dtoPage = page.map(TaskCommentMapper::toResponseDto);
+
+        return ResponseEntity.ok(dtoPage);
     }
 }

@@ -24,4 +24,12 @@ public class TaskCommentMapper {
                 .deleted(false)
                 .build();
     }
+
+    public static TaskCommentResponseDto toResponseDto(TaskCommentEntity comment) {
+        return TaskCommentResponseDto.builder()
+                .taskId(comment.getTask().getId())
+                .authorId(comment.getAuthor().getId())
+                .body(comment.getBody())
+                .build();
+    }
 }

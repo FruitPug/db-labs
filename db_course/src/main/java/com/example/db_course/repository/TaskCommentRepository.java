@@ -3,6 +3,8 @@ package com.example.db_course.repository;
 import com.example.db_course.entity.TaskCommentEntity;
 import com.example.db_course.entity.TaskEntity;
 import com.example.db_course.entity.UserEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -16,4 +18,15 @@ public interface TaskCommentRepository extends JpaRepository<TaskCommentEntity, 
 
     @Query(value = "select * from task_comments where id = :id", nativeQuery = true)
     Optional<TaskCommentEntity> findRawById(Long id);
+
+    @Query("""
+        select tc from TaskCommentEntity tc
+        where (:taskId is null or tc.task.id = :taskId)
+            and (:userId is null or tc.author.id = :userId)
+    """)
+    Page<TaskCommentEntity> searchCommentsFiltered(
+            Long taskId,
+            Long userId,
+            Pageable pageable
+    );
 }
