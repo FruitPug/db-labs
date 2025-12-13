@@ -1,6 +1,7 @@
 package com.example.db_course.service;
 
 import com.example.db_course.dto.request.ProjectMemberCreateDto;
+import com.example.db_course.dto.response.ProjectMemberResponseDto;
 import com.example.db_course.entity.ProjectEntity;
 import com.example.db_course.entity.ProjectMemberEntity;
 import com.example.db_course.entity.UserEntity;
@@ -11,6 +12,8 @@ import com.example.db_course.repository.ProjectRepository;
 import com.example.db_course.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +37,7 @@ public class ProjectMemberService {
             throw new IllegalStateException("Project can only have one owner");
         }
 
-        ProjectMemberEntity member = ProjectMemberMapper.createProjectMemberEntity(
+        ProjectMemberEntity member = ProjectMemberMapper.fromCreateDto(
                 project,
                 user,
                 dto.getRole()
@@ -54,5 +57,24 @@ public class ProjectMemberService {
         }
 
         return ResponseEntity.ok().build();
+    }
+
+    @Transactional
+    public ResponseEntity<Page<ProjectMemberResponseDto>> getProjectMembersFiltered(
+            Long projectId,
+            Long userId,
+            ProjectMemberRole role,
+            Pageable pageable
+    ) {
+        Page<ProjectMemberEntity> page = projectMemberRepository.searchProjectMembersFiltered(
+                projectId,
+                userId,
+                role,
+                pageable
+        );
+
+        Page<ProjectMemberResponseDto> dtoPage = page.map(ProjectMemberMapper::toResponseDto);
+
+        return ResponseEntity.ok(dtoPage);
     }
 }
