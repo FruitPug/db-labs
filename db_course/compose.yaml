@@ -1,29 +1,37 @@
 services:
   postgres:
-    image: postgres:latest
+    image: postgres:18
     container_name: db_course_postgres
     environment:
       POSTGRES_DB: db_course
       POSTGRES_USER: user
       POSTGRES_PASSWORD: pass
+      TZ: Europe/Kyiv
     ports:
       - "5432:5432"
     volumes:
       - db_course_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d db_course"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
-#  app:
-#    build: .
-#    container_name: db_course_app
-#    depends_on:
-#      - postgres
-#    environment:
-#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/db_course
-#      SPRING_DATASOURCE_USERNAME: user
-#      SPRING_DATASOURCE_PASSWORD: pass
-#      SPRING_JPA_HIBERNATE_DDL_AUTO: none
-#      SPRING_PROFILES_ACTIVE: docker
-#    ports:
-#      - "8081:8081"
+  app:
+    build: .
+    container_name: db_course_app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/db_course
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: pass
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+      SERVER_PORT: 8080
+    ports:
+      - "8080:8080"
 
 volumes:
   db_course_data:
