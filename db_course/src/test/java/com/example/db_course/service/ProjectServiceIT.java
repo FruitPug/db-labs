@@ -140,7 +140,7 @@ class ProjectServiceIT extends IntegrationTestBase {
 
     @Test
     @Transactional
-    void getTasksFiltered_filtersByStatusAndProjectAndExcludesSoftDeleted() {
+    void getProjectFiltered_filtersByStatusAndExcludesSoftDeleted() {
         ProjectEntity project1 = ProjectEntity.builder()
                 .name("Test project 1")
                 .description("desc1")
