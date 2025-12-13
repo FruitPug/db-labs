@@ -23,7 +23,7 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, Long> {
 
     @Query("""
         select p from ProjectEntity p
-        where (p.status = :status)
+        where (:status is null or p.status = :status)
     """)
     Page<ProjectEntity> searchProjectsFiltered(ProjectStatus status, Pageable pageable);
 }

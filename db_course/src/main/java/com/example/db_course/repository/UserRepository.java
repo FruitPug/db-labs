@@ -18,7 +18,7 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
     @Query("""
         select u from UserEntity u
-        where (u.role = :role)
+        where (:role is null or u.role = :role)
     """)
     Page<UserEntity> searchUsersFiltered(UserRole role, Pageable pageable);
 }

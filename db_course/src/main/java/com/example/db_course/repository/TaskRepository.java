@@ -19,9 +19,9 @@ public interface TaskRepository extends JpaRepository<TaskEntity, Long> {
 
     @Query("""
         select t from TaskEntity t
-        where (t.status = :status)
-            and (t.priority = :priority)
-            and (t.project.id = :projectId)
+        where (:projectId is null or t.project.id = :projectId)
+            and (:priority is null or t.priority = :priority)
+            and (:status is null or t.status = :status)
             and (:assigneeId is null or t.assignee.id = :assigneeId)
     """)
     Page<TaskEntity> searchTasksFiltered(

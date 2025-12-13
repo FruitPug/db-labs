@@ -17,7 +17,7 @@ public interface TagRepository extends JpaRepository<TagEntity, Long> {
 
     @Query("""
         select t from TagEntity t
-        where (t.color = :color)
+        where (:color is null or t.color = :color)
     """)
     Page<TagEntity> searchTagsFiltered(String color, Pageable pageable);
 }
