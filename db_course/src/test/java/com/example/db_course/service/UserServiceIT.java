@@ -3,6 +3,7 @@ package com.example.db_course.service;
 import com.example.db_course.EntityCreator;
 import com.example.db_course.IntegrationTestBase;
 import com.example.db_course.dto.request.UserCreateDto;
+import com.example.db_course.dto.response.UserResponseDto;
 import com.example.db_course.entity.UserEntity;
 import com.example.db_course.entity.enums.UserRole;
 import com.example.db_course.repository.UserRepository;
@@ -10,8 +11,11 @@ import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -65,5 +69,49 @@ public class UserServiceIT extends IntegrationTestBase {
         assertThat(raw).isPresent();
         assertThat(raw.get().isDeleted()).isTrue();
         assertThat(raw.get().getDeletedAt()).isNotNull();
+    }
+
+    @Test
+    @Transactional
+    void getUsersFiltered_filtersByRoleAndExcludesSoftDeleted() {
+        UserEntity user1 = UserEntity.builder()
+                .email("user1@test.com")
+                .fullName("Test 1 Tester")
+                .role(UserRole.DEVELOPER)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .deleted(false)
+                .build();
+        userRepository.save(user1);
+
+        UserEntity user2 = UserEntity.builder()
+                .email("user2@test.com")
+                .fullName("Test 2 Tester")
+                .role(UserRole.DEVELOPER)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .deleted(true)
+                .deletedAt(LocalDateTime.now())
+                .build();
+        userRepository.save(user2);
+
+        UserEntity user3 = UserEntity.builder()
+                .email("user3@test.com")
+                .fullName("Test 3 Tester")
+                .role(UserRole.MANAGER)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .deleted(false)
+                .build();
+        userRepository.save(user3);
+
+        PageRequest pageable = PageRequest.of(0, 10);
+        Page<UserResponseDto> page = userService.getUsersFiltered(UserRole.DEVELOPER, pageable).getBody();
+
+        assertThat(page).isNotNull();
+        assertThat(page.getTotalElements()).isEqualTo(1);
+        UserResponseDto dto = page.getContent().get(0);
+        assertThat(dto.getFullName()).isEqualTo(user1.getFullName());
+        assertThat(dto.getRole()).isEqualTo(UserRole.DEVELOPER);
     }
 }
