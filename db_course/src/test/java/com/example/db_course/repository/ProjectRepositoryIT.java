@@ -27,4 +27,16 @@ class ProjectRepositoryIT extends IntegrationTestBase {
         assertThat(found).isPresent();
         assertThat(found.get().getId()).isEqualTo(project.getId());
     }
+
+    @Test
+    @Transactional
+    void findRawById_returnsWithNativeQuery() {
+        ProjectEntity project = EntityCreator.getProjectEntity();
+        projectRepository.save(project);
+
+        Optional<ProjectEntity> found = projectRepository.findRawById(project.getId());
+
+        assertThat(found).isPresent();
+        assertThat(found.get().getId()).isEqualTo(project.getId());
+    }
 }

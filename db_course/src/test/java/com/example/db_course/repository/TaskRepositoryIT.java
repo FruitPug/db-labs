@@ -8,6 +8,7 @@ import com.example.db_course.entity.UserEntity;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.Optional;
 
@@ -37,6 +38,24 @@ class TaskRepositoryIT extends IntegrationTestBase {
         taskRepository.save(task);
 
         Optional<TaskEntity> found = taskRepository.findById(task.getId());
+
+        assertThat(found).isPresent();
+        assertThat(found.get().getId()).isEqualTo(task.getId());
+    }
+
+    @Test
+    @Transactional
+    void findRawById_returnsWithNativeQuery() {
+        UserEntity user = EntityCreator.getUserEntity();
+        userRepository.save(user);
+
+        ProjectEntity project = EntityCreator.getProjectEntity();
+        projectRepository.save(project);
+
+        TaskEntity task = EntityCreator.getTaskEntity(user, project);
+        taskRepository.save(task);
+
+        Optional<TaskEntity> found = taskRepository.findRawById(task.getId());
 
         assertThat(found).isPresent();
         assertThat(found.get().getId()).isEqualTo(task.getId());

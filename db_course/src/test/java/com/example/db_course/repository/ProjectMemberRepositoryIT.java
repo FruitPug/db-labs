@@ -42,4 +42,41 @@ class ProjectMemberRepositoryIT extends IntegrationTestBase {
         assertThat(found).isPresent();
         assertThat(found.get().getRole()).isEqualTo(ProjectMemberRole.OWNER);
     }
+
+    @Test
+    @Transactional
+    void findRawById_returnsWithNativeQuery() {
+        UserEntity user = EntityCreator.getUserEntity();
+        userRepository.save(user);
+
+        ProjectEntity project = EntityCreator.getProjectEntity();
+        projectRepository.save(project);
+
+        ProjectMemberEntity pm = EntityCreator.getProjectMemberEntity(user, project);
+        projectMemberRepository.save(pm);
+
+        Optional<ProjectMemberEntity> found = projectMemberRepository.findRawById(pm.getId());
+
+        assertThat(found).isPresent();
+        assertThat(found.get().getId()).isEqualTo(pm.getId());
+    }
+
+    @Test
+    @Transactional
+    void existsByProject_IdAndUser_Id_returnsTrue() {
+        UserEntity user = EntityCreator.getUserEntity();
+        userRepository.save(user);
+
+        ProjectEntity project = EntityCreator.getProjectEntity();
+        projectRepository.save(project);
+
+        ProjectMemberEntity pm = EntityCreator.getProjectMemberEntity(user, project);
+        projectMemberRepository.save(pm);
+
+        boolean exists = projectMemberRepository.existsByProject_IdAndUser_Id(project.getId(), user.getId());
+        assertThat(exists).isTrue();
+
+        boolean notExists = projectMemberRepository.existsByProject_IdAndUser_Id(project.getId(), user.getId() + 1);
+        assertThat(notExists).isFalse();
+    }
 }

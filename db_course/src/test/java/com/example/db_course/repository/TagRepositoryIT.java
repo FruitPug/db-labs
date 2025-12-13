@@ -27,4 +27,16 @@ public class TagRepositoryIT extends IntegrationTestBase {
         assertThat(found).isPresent();
         assertThat(found.get().getId()).isEqualTo(tag.getId());
     }
+
+    @Test
+    @Transactional
+    void findRawById_returnsWithNativeQuery() {
+        TagEntity tag = EntityCreator.getTagEntity();
+        tagRepository.save(tag);
+
+        Optional<TagEntity> found = tagRepository.findRawById(tag.getId());
+
+        assertThat(found).isPresent();
+        assertThat(found.get().getId()).isEqualTo(tag.getId());
+    }
 }
