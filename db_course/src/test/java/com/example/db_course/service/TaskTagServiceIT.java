@@ -3,6 +3,7 @@ package com.example.db_course.service;
 import com.example.db_course.EntityCreator;
 import com.example.db_course.IntegrationTestBase;
 import com.example.db_course.dto.request.TaskTagCreateDto;
+import com.example.db_course.dto.response.TaskTagResponseDto;
 import com.example.db_course.entity.*;
 import com.example.db_course.entity.enums.*;
 import com.example.db_course.repository.*;
@@ -10,6 +11,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -121,5 +124,47 @@ public class TaskTagServiceIT extends IntegrationTestBase {
         assertThatThrownBy(() -> taskTagService.hardDeleteProject(nonExistingId))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Task tag not found");
+    }
+
+    @Test
+    @Transactional
+    void getTaskTagsFiltered_filtersByTag() {
+        UserEntity user = EntityCreator.getUserEntity();
+        userRepository.save(user);
+
+        ProjectEntity project = EntityCreator.getProjectEntity();
+        projectRepository.save(project);
+
+        TaskEntity task = EntityCreator.getTaskEntity(user, project);
+        taskRepository.save(task);
+
+        TagEntity tag1 = EntityCreator.getTagEntity();
+        tag1.setName("tag1");
+        tag1.setColor("red");
+        tagRepository.save(tag1);
+
+        TagEntity tag2 = EntityCreator.getTagEntity();
+        tag2.setName("tag2");
+        tag2.setColor("blue");
+        tagRepository.save(tag2);
+
+        TaskTagEntity taskTag1 = EntityCreator.getTaskTagEntity(tag1, task);
+        taskTagRepository.save(taskTag1);
+
+        TaskTagEntity taskTag2 = EntityCreator.getTaskTagEntity(tag2, task);
+        taskTagRepository.save(taskTag2);
+
+        PageRequest pageable = PageRequest.of(0, 10);
+        Page<TaskTagResponseDto> page = taskTagService.getTaskTagsFiltered(
+                task.getId(),
+                tag1.getId(),
+                pageable)
+                .getBody();
+
+        assertThat(page).isNotNull();
+        assertThat(page.getTotalElements()).isEqualTo(1);
+        TaskTagResponseDto dto = page.getContent().get(0);
+        assertThat(dto.getTaskId()).isEqualTo(task.getId());
+        assertThat(dto.getTagId()).isEqualTo(tag1.getId());
     }
 }

@@ -1,6 +1,7 @@
 package com.example.db_course.service;
 
 import com.example.db_course.dto.request.TaskTagCreateDto;
+import com.example.db_course.dto.response.TaskTagResponseDto;
 import com.example.db_course.entity.TagEntity;
 import com.example.db_course.entity.TaskEntity;
 import com.example.db_course.entity.TaskTagEntity;
@@ -10,6 +11,8 @@ import com.example.db_course.repository.TaskRepository;
 import com.example.db_course.repository.TaskTagRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -45,5 +48,18 @@ public class TaskTagService {
         }
 
         return ResponseEntity.ok().build();
+    }
+
+    @Transactional
+    public ResponseEntity<Page<TaskTagResponseDto>> getTaskTagsFiltered(
+            Long taskId,
+            Long tagId,
+            Pageable pageable
+    ) {
+        Page<TaskTagEntity> page = taskTagRepository.searchTaskTagsFiltered(taskId, tagId, pageable);
+
+        Page<TaskTagResponseDto> dtoPage = page.map(TaskTagMapper::toResponseDto);
+
+        return ResponseEntity.ok(dtoPage);
     }
 }
