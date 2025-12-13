@@ -6,9 +6,11 @@ import com.example.db_course.entity.enums.TaskStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Repository
@@ -30,5 +32,19 @@ public interface TaskRepository extends JpaRepository<TaskEntity, Long> {
             Long projectId,
             Long assigneeId,
             Pageable pageable
+    );
+
+    @Modifying
+    @Query(value = """
+        update tasks
+        set is_deleted = true,
+            deleted_at = :now,
+            updated_at = :now
+        where project_id = :projectId
+          and is_deleted = false
+        """, nativeQuery = true)
+    void softDeleteByProjectId(
+            Long projectId,
+            LocalDateTime now
     );
 }

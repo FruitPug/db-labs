@@ -96,6 +96,12 @@ class ProjectServiceIT extends IntegrationTestBase {
         ProjectEntity project = EntityCreator.getProjectEntity();
         projectRepository.save(project);
 
+        UserEntity user = EntityCreator.getUserEntity();
+        userRepository.save(user);
+
+        TaskEntity task = EntityCreator.getTaskEntity(user, project);
+        taskRepository.save(task);
+
         Long id = project.getId();
 
         assertThat(projectRepository.findById(id)).isPresent();
@@ -107,11 +113,17 @@ class ProjectServiceIT extends IntegrationTestBase {
         entityManager.clear();
 
         assertThat(projectRepository.findById(id)).isEmpty();
+        assertThat(taskRepository.findById(task.getId())).isEmpty();
 
-        Optional<ProjectEntity> raw = projectRepository.findRawById(id);
-        assertThat(raw).isPresent();
-        assertThat(raw.get().isDeleted()).isTrue();
-        assertThat(raw.get().getDeletedAt()).isNotNull();
+        Optional<ProjectEntity> rawProject = projectRepository.findRawById(id);
+        assertThat(rawProject).isPresent();
+        assertThat(rawProject.get().isDeleted()).isTrue();
+        assertThat(rawProject.get().getDeletedAt()).isNotNull();
+
+        Optional<TaskEntity> rawTask = taskRepository.findRawById(task.getId());
+        assertThat(rawTask).isPresent();
+        assertThat(rawTask.get().isDeleted()).isTrue();
+        assertThat(rawTask.get().getDeletedAt()).isNotNull();
     }
 
     @Test

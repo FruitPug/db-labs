@@ -13,6 +13,7 @@ import com.example.db_course.entity.ProjectEntity;
 import com.example.db_course.mapper.ProjectMemberMapper;
 import com.example.db_course.repository.ProjectMemberRepository;
 import com.example.db_course.repository.ProjectRepository;
+import com.example.db_course.repository.TaskRepository;
 import com.example.db_course.repository.UserRepository;
 import com.example.db_course.service.helper.SoftDeleteHelper;
 import jakarta.transaction.Transactional;
@@ -32,6 +33,7 @@ public class ProjectService {
     private final UserRepository userRepository;
     private final ProjectMemberRepository projectMemberRepository;
     private final SoftDeleteHelper softDeleteHelper;
+    private final TaskRepository taskRepository;
 
     @Transactional
     public ResponseEntity<Void> createProject(ProjectCreateDto projectCreateDto) {
@@ -63,12 +65,16 @@ public class ProjectService {
 
     @Transactional
     public ResponseEntity<Void> softDeleteProject(Long id) {
-        return softDeleteHelper.softDelete(
+        softDeleteHelper.softDelete(
                 id,
                 projectRepository::findById,
                 projectRepository::save,
                 () -> new IllegalArgumentException("Project not found")
         );
+
+        taskRepository.softDeleteByProjectId(id, LocalDateTime.now());
+
+        return ResponseEntity.ok().build();
     }
 
     @Transactional

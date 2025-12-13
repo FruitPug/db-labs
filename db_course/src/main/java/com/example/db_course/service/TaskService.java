@@ -10,10 +10,7 @@ import com.example.db_course.entity.UserEntity;
 import com.example.db_course.entity.enums.TaskPriority;
 import com.example.db_course.entity.enums.TaskStatus;
 import com.example.db_course.mapper.TaskMapper;
-import com.example.db_course.repository.ProjectMemberRepository;
-import com.example.db_course.repository.ProjectRepository;
-import com.example.db_course.repository.TaskRepository;
-import com.example.db_course.repository.UserRepository;
+import com.example.db_course.repository.*;
 import com.example.db_course.service.helper.SoftDeleteHelper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +29,7 @@ public class TaskService {
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
     private final ProjectMemberRepository projectMemberRepository;
+    private final TaskCommentRepository taskCommentRepository;
     private final SoftDeleteHelper softDeleteHelper;
 
     @Transactional
@@ -93,18 +91,21 @@ public class TaskService {
 
         taskRepository.save(task);
 
-        // @Version on TaskEntity will enforce optimistic locking on flush/commit
         return ResponseEntity.ok().build();
     }
 
     @Transactional
     public ResponseEntity<Void> softDeleteTask(Long id) {
-        return softDeleteHelper.softDelete(
+        softDeleteHelper.softDelete(
                 id,
                 taskRepository::findById,
                 taskRepository::save,
                 () -> new IllegalArgumentException("Task not found")
         );
+
+        taskCommentRepository.softDeleteByTaskId(id, LocalDateTime.now());
+
+        return ResponseEntity.ok().build();
     }
 
     @Transactional

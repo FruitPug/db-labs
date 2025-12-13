@@ -6,15 +6,9 @@ import com.example.db_course.dto.request.TaskCreateDto;
 import com.example.db_course.dto.request.TaskReassignDto;
 import com.example.db_course.dto.request.TaskStatusUpdateDto;
 import com.example.db_course.dto.response.TaskResponseDto;
-import com.example.db_course.entity.ProjectEntity;
-import com.example.db_course.entity.ProjectMemberEntity;
-import com.example.db_course.entity.TaskEntity;
-import com.example.db_course.entity.UserEntity;
+import com.example.db_course.entity.*;
 import com.example.db_course.entity.enums.*;
-import com.example.db_course.repository.ProjectMemberRepository;
-import com.example.db_course.repository.ProjectRepository;
-import com.example.db_course.repository.TaskRepository;
-import com.example.db_course.repository.UserRepository;
+import com.example.db_course.repository.*;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Assertions;
@@ -51,6 +45,9 @@ class TaskServiceIT extends IntegrationTestBase {
 
     @Autowired
     private ProjectMemberRepository projectMemberRepository;
+
+    @Autowired
+    private TaskCommentRepository  taskCommentRepository;
 
     @Autowired
     private EntityManager entityManager;
@@ -374,6 +371,9 @@ class TaskServiceIT extends IntegrationTestBase {
         TaskEntity task = EntityCreator.getTaskEntity(user, project);
         taskRepository.save(task);
 
+        TaskCommentEntity taskComment = EntityCreator.getTaskCommentEntity(user, task);
+        taskCommentRepository.save(taskComment);
+
         Long id = task.getId();
 
         assertThat(taskRepository.findById(id)).isPresent();
@@ -385,11 +385,17 @@ class TaskServiceIT extends IntegrationTestBase {
         entityManager.clear();
 
         assertThat(taskRepository.findById(id)).isEmpty();
+        assertThat(taskCommentRepository.findById(taskComment.getId())).isEmpty();
 
-        Optional<TaskEntity> raw = taskRepository.findRawById(id);
-        assertThat(raw).isPresent();
-        assertThat(raw.get().isDeleted()).isTrue();
-        assertThat(raw.get().getDeletedAt()).isNotNull();
+        Optional<TaskEntity> rawTask = taskRepository.findRawById(id);
+        assertThat(rawTask).isPresent();
+        assertThat(rawTask.get().isDeleted()).isTrue();
+        assertThat(rawTask.get().getDeletedAt()).isNotNull();
+
+        Optional<TaskCommentEntity> rawTaskComment = taskCommentRepository.findRawById(taskComment.getId());
+        assertThat(rawTaskComment).isPresent();
+        assertThat(rawTaskComment.get().isDeleted()).isTrue();
+        assertThat(rawTaskComment.get().getDeletedAt()).isNotNull();
     }
 
     @Test
