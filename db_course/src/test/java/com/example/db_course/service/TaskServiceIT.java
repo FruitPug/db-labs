@@ -138,14 +138,7 @@ class TaskServiceIT extends IntegrationTestBase {
     @Test
     @Transactional
     void reassignTask_whenAssigneeIsProjectMember_updatesAssignee() {
-        ProjectEntity project = ProjectEntity.builder()
-                .name("P")
-                .description("desc")
-                .status(ProjectStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .deleted(false)
-                .build();
+        ProjectEntity project = EntityCreator.getProjectEntity();
         projectRepository.save(project);
 
         UserEntity creator = UserEntity.builder()
@@ -199,18 +192,7 @@ class TaskServiceIT extends IntegrationTestBase {
                 .joinedAt(LocalDateTime.now())
                 .build());
 
-        TaskEntity task = TaskEntity.builder()
-                .project(project)
-                .creator(creator)
-                .assignee(oldAssignee)
-                .title("T")
-                .description("d")
-                .status(TaskStatus.TODO)
-                .priority(TaskPriority.MEDIUM)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .deleted(false)
-                .build();
+        TaskEntity task = EntityCreator.getTaskEntity(creator, project);
         taskRepository.save(task);
 
         TaskReassignDto dto = new TaskReassignDto();
@@ -229,14 +211,7 @@ class TaskServiceIT extends IntegrationTestBase {
     @Test
     @Transactional
     void reassignTask_whenAssigneeNotProjectMember_throws() {
-        ProjectEntity project = ProjectEntity.builder()
-                .name("P")
-                .description("desc")
-                .status(ProjectStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .deleted(false)
-                .build();
+        ProjectEntity project = EntityCreator.getProjectEntity();
         projectRepository.save(project);
 
         UserEntity creator = UserEntity.builder()
@@ -283,18 +258,7 @@ class TaskServiceIT extends IntegrationTestBase {
                 .joinedAt(LocalDateTime.now())
                 .build());
 
-        TaskEntity task = TaskEntity.builder()
-                .project(project)
-                .creator(creator)
-                .assignee(currentAssignee)
-                .title("T")
-                .description("d")
-                .status(TaskStatus.TODO)
-                .priority(TaskPriority.MEDIUM)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .deleted(false)
-                .build();
+        TaskEntity task = EntityCreator.getTaskEntity(creator, project);
         taskRepository.save(task);
 
         TaskReassignDto dto = new TaskReassignDto();
@@ -310,16 +274,8 @@ class TaskServiceIT extends IntegrationTestBase {
     void optimisticLock_conflictOnStaleDetachedEntity_throws() {
         TransactionTemplate tx = new TransactionTemplate(transactionManager);
 
-        // Arrange: create baseline data
         Long taskId = tx.execute(status -> {
-            ProjectEntity project = ProjectEntity.builder()
-                    .name("P")
-                    .description("desc")
-                    .status(ProjectStatus.ACTIVE)
-                    .createdAt(LocalDateTime.now())
-                    .updatedAt(LocalDateTime.now())
-                    .deleted(false)
-                    .build();
+            ProjectEntity project = EntityCreator.getProjectEntity();
             projectRepository.save(project);
 
             UserEntity creator = UserEntity.builder()
@@ -356,18 +312,7 @@ class TaskServiceIT extends IntegrationTestBase {
                     .joinedAt(LocalDateTime.now())
                     .build());
 
-            TaskEntity task = TaskEntity.builder()
-                    .project(project)
-                    .creator(creator)
-                    .assignee(u1)
-                    .title("T")
-                    .description("d")
-                    .status(TaskStatus.TODO)
-                    .priority(TaskPriority.MEDIUM)
-                    .createdAt(LocalDateTime.now())
-                    .updatedAt(LocalDateTime.now())
-                    .deleted(false)
-                    .build();
+            TaskEntity task = EntityCreator.getTaskEntity(creator, project);
             taskRepository.save(task);
 
             entityManager.flush();
@@ -375,7 +320,6 @@ class TaskServiceIT extends IntegrationTestBase {
             return task.getId();
         });
 
-        // Tx A: load entity and detach (stale snapshot)
         TaskEntity stale = tx.execute(status -> {
             Assertions.assertNotNull(taskId);
             TaskEntity t = taskRepository.findById(taskId).orElseThrow();
@@ -383,7 +327,6 @@ class TaskServiceIT extends IntegrationTestBase {
             return t;
         });
 
-        // Tx B: update same row (increments version)
         tx.execute(status -> {
             Assertions.assertNotNull(taskId);
             TaskEntity fresh = taskRepository.findById(taskId).orElseThrow();
@@ -395,7 +338,6 @@ class TaskServiceIT extends IntegrationTestBase {
             return null;
         });
 
-        // Tx C: try to save stale entity -> optimistic locking failure
         assertThatThrownBy(() -> tx.execute(status -> {
             Assertions.assertNotNull(stale);
             stale.setTitle("Stale update");
@@ -453,24 +395,10 @@ class TaskServiceIT extends IntegrationTestBase {
     @Test
     @Transactional
     void getTasksFiltered_filtersByStatusAndProjectAndExcludesSoftDeleted() {
-        ProjectEntity project = ProjectEntity.builder()
-                .name("Read test project")
-                .description("desc")
-                .status(ProjectStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .deleted(false)
-                .build();
+        ProjectEntity project = EntityCreator.getProjectEntity();
         projectRepository.save(project);
 
-        UserEntity creator = UserEntity.builder()
-                .email("creator@test.com")
-                .fullName("Creator")
-                .role(UserRole.DEVELOPER)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .deleted(false)
-                .build();
+        UserEntity creator = EntityCreator.getUserEntity();
         userRepository.save(creator);
 
         UserEntity assignee = UserEntity.builder()
