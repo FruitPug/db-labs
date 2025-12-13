@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 public class TaskCommentMapper {
 
-    public static TaskCommentEntity createTaskCommentEntity(
+    public static TaskCommentEntity fromCreateDto(
             TaskEntity task,
             UserEntity author,
             TaskCommentCreateDto dto
