@@ -5,7 +5,6 @@ import com.example.db_course.IntegrationTestBase;
 import com.example.db_course.dto.request.TaskCommentCreateDto;
 import com.example.db_course.dto.response.TaskCommentResponseDto;
 import com.example.db_course.entity.*;
-import com.example.db_course.entity.enums.*;
 import com.example.db_course.repository.*;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
