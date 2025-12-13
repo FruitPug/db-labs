@@ -50,7 +50,7 @@ public class ProjectService {
 
         ProjectEntity savedProject = projectRepository.save(project);
 
-        ProjectMemberEntity member = ProjectMemberMapper.fromCreateDto(
+        ProjectMemberEntity member = ProjectMemberMapper.createProjectMemberEntity(
                 savedProject,
                 owner,
                 ProjectMemberRole.OWNER

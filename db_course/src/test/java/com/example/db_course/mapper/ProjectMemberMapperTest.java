@@ -20,7 +20,7 @@ class ProjectMemberMapperTest {
 
         ProjectMemberRole role = ProjectMemberRole.CONTRIBUTOR;
 
-        ProjectMemberEntity member = ProjectMemberMapper.fromCreateDto(
+        ProjectMemberEntity member = ProjectMemberMapper.createProjectMemberEntity(
                 project,
                 user,
                 role

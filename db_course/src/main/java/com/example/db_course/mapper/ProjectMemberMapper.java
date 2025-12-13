@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 public class ProjectMemberMapper {
 
-    public static ProjectMemberEntity fromCreateDto(
+    public static ProjectMemberEntity createProjectMemberEntity(
             ProjectEntity project,
             UserEntity user,
             ProjectMemberRole role
@@ -25,8 +25,8 @@ public class ProjectMemberMapper {
 
     public static ProjectMemberResponseDto toResponseDto(ProjectMemberEntity projectMember) {
         return ProjectMemberResponseDto.builder()
-                .projectId(projectMember.getId())
-                .userId(projectMember.getId())
+                .projectId(projectMember.getProject().getId())
+                .userId(projectMember.getUser().getId())
                 .role(projectMember.getRole())
                 .build();
     }

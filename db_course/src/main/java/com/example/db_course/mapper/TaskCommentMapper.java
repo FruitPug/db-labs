@@ -1,6 +1,7 @@
 package com.example.db_course.mapper;
 
 import com.example.db_course.dto.request.TaskCommentCreateDto;
+import com.example.db_course.dto.response.TaskCommentResponseDto;
 import com.example.db_course.entity.TaskCommentEntity;
 import com.example.db_course.entity.TaskEntity;
 import com.example.db_course.entity.UserEntity;
@@ -9,7 +10,7 @@ import java.time.LocalDateTime;
 
 public class TaskCommentMapper {
 
-    public static TaskCommentEntity fromCreateDto(
+    public static TaskCommentEntity createTaskCommentEntity(
             TaskEntity task,
             UserEntity author,
             TaskCommentCreateDto dto

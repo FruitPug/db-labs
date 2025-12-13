@@ -37,7 +37,7 @@ public class ProjectMemberService {
             throw new IllegalStateException("Project can only have one owner");
         }
 
-        ProjectMemberEntity member = ProjectMemberMapper.fromCreateDto(
+        ProjectMemberEntity member = ProjectMemberMapper.createProjectMemberEntity(
                 project,
                 user,
                 dto.getRole()

@@ -23,7 +23,7 @@ class TaskCommentMapperTest {
         dto.setAuthorUserId(2L);
         dto.setBody("Looks good to me");
 
-        TaskCommentEntity comment = TaskCommentMapper.fromCreateDto(task, author, dto);
+        TaskCommentEntity comment = TaskCommentMapper.createTaskCommentEntity(task, author, dto);
 
         assertThat(comment.getTask()).isSameAs(task);
         assertThat(comment.getAuthor()).isSameAs(author);

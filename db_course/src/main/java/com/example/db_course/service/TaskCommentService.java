@@ -31,7 +31,7 @@ public class TaskCommentService {
         UserEntity author = userRepository.findById(dto.getAuthorUserId())
                 .orElseThrow(() -> new IllegalArgumentException("Author user not found"));
 
-        TaskCommentEntity comment = TaskCommentMapper.fromCreateDto(task, author, dto);
+        TaskCommentEntity comment = TaskCommentMapper.createTaskCommentEntity(task, author, dto);
         taskCommentRepository.save(comment);
 
         return ResponseEntity.ok().build();
