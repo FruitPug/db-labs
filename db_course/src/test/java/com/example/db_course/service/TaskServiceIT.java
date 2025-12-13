@@ -394,7 +394,7 @@ class TaskServiceIT extends IntegrationTestBase {
 
     @Test
     @Transactional
-    void getTasksFiltered_filtersByStatusAndProjectAndExcludesSoftDeleted() {
+    void getTasksFiltered_filtersByStatusAndPriorityAndExcludesSoftDeleted() {
         ProjectEntity project = EntityCreator.getProjectEntity();
         projectRepository.save(project);
 
