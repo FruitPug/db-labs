@@ -24,4 +24,6 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMemberEnti
     @Modifying
     @Query(value = "delete from project_members where id = :id", nativeQuery = true)
     int hardDeleteById(Long id);
+
+    boolean existsByProject_IdAndUser_Id(Long projectId, Long userId);
 }

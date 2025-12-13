@@ -1,6 +1,7 @@
 package com.example.db_course.controller;
 
 import com.example.db_course.dto.request.TaskCreateDto;
+import com.example.db_course.dto.request.TaskReassignDto;
 import com.example.db_course.dto.request.TaskStatusUpdateDto;
 import com.example.db_course.dto.response.TaskResponseDto;
 import com.example.db_course.entity.enums.TaskPriority;
@@ -43,6 +44,13 @@ public class TaskController {
             @Valid @RequestBody TaskStatusUpdateDto dto
     ) {
         return taskService.updateTaskStatus(dto);
+    }
+
+    @PatchMapping("/assignee")
+    public ResponseEntity<Void> reassignTask(
+            @Valid @RequestBody TaskReassignDto dto
+    ) {
+        return taskService.reassignTask(dto);
     }
 
     @DeleteMapping("/{id}")

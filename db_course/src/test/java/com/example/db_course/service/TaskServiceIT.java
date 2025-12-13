@@ -3,25 +3,30 @@ package com.example.db_course.service;
 import com.example.db_course.EntityCreator;
 import com.example.db_course.IntegrationTestBase;
 import com.example.db_course.dto.request.TaskCreateDto;
+import com.example.db_course.dto.request.TaskReassignDto;
 import com.example.db_course.dto.request.TaskStatusUpdateDto;
 import com.example.db_course.dto.response.TaskResponseDto;
 import com.example.db_course.entity.ProjectEntity;
+import com.example.db_course.entity.ProjectMemberEntity;
 import com.example.db_course.entity.TaskEntity;
 import com.example.db_course.entity.UserEntity;
-import com.example.db_course.entity.enums.ProjectStatus;
-import com.example.db_course.entity.enums.TaskPriority;
-import com.example.db_course.entity.enums.TaskStatus;
-import com.example.db_course.entity.enums.UserRole;
+import com.example.db_course.entity.enums.*;
+import com.example.db_course.repository.ProjectMemberRepository;
 import com.example.db_course.repository.ProjectRepository;
 import com.example.db_course.repository.TaskRepository;
 import com.example.db_course.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -45,7 +50,16 @@ class TaskServiceIT extends IntegrationTestBase {
     private TaskRepository taskRepository;
 
     @Autowired
+    private ProjectMemberRepository projectMemberRepository;
+
+    @Autowired
     private EntityManager entityManager;
+
+    @Autowired
+    private PlatformTransactionManager transactionManager;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Test
     @Transactional
@@ -119,6 +133,291 @@ class TaskServiceIT extends IntegrationTestBase {
         assertThat(tasks).hasSize(1);
         TaskEntity task = tasks.get(0);
         assertThat(task.getStatus()).isEqualTo(TaskStatus.DONE);
+    }
+
+    @Test
+    @Transactional
+    void reassignTask_whenAssigneeIsProjectMember_updatesAssignee() {
+        ProjectEntity project = ProjectEntity.builder()
+                .name("P")
+                .description("desc")
+                .status(ProjectStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .deleted(false)
+                .build();
+        projectRepository.save(project);
+
+        UserEntity creator = UserEntity.builder()
+                .email("creator@test.com")
+                .fullName("Creator")
+                .role(UserRole.DEVELOPER)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .deleted(false)
+                .build();
+        userRepository.save(creator);
+
+        UserEntity oldAssignee = UserEntity.builder()
+                .email("old@test.com")
+                .fullName("Old")
+                .role(UserRole.DEVELOPER)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .deleted(false)
+                .build();
+        userRepository.save(oldAssignee);
+
+        UserEntity newAssignee = UserEntity.builder()
+                .email("new@test.com")
+                .fullName("New")
+                .role(UserRole.DEVELOPER)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .deleted(false)
+                .build();
+        userRepository.save(newAssignee);
+
+        projectMemberRepository.save(ProjectMemberEntity.builder()
+                .project(project)
+                .user(creator)
+                .role(ProjectMemberRole.OWNER)
+                .joinedAt(LocalDateTime.now())
+                .build());
+
+        projectMemberRepository.save(ProjectMemberEntity.builder()
+                .project(project)
+                .user(oldAssignee)
+                .role(ProjectMemberRole.CONTRIBUTOR)
+                .joinedAt(LocalDateTime.now())
+                .build());
+
+        projectMemberRepository.save(ProjectMemberEntity.builder()
+                .project(project)
+                .user(newAssignee)
+                .role(ProjectMemberRole.CONTRIBUTOR)
+                .joinedAt(LocalDateTime.now())
+                .build());
+
+        TaskEntity task = TaskEntity.builder()
+                .project(project)
+                .creator(creator)
+                .assignee(oldAssignee)
+                .title("T")
+                .description("d")
+                .status(TaskStatus.TODO)
+                .priority(TaskPriority.MEDIUM)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .deleted(false)
+                .build();
+        taskRepository.save(task);
+
+        TaskReassignDto dto = new TaskReassignDto();
+        dto.setTaskId(task.getId());
+        dto.setNewAssigneeUserId(newAssignee.getId());
+
+        taskService.reassignTask(dto);
+
+        entityManager.flush();
+        entityManager.clear();
+
+        TaskEntity reloaded = taskRepository.findById(task.getId()).orElseThrow();
+        assertThat(reloaded.getAssignee().getId()).isEqualTo(newAssignee.getId());
+    }
+
+    @Test
+    @Transactional
+    void reassignTask_whenAssigneeNotProjectMember_throws() {
+        ProjectEntity project = ProjectEntity.builder()
+                .name("P")
+                .description("desc")
+                .status(ProjectStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .deleted(false)
+                .build();
+        projectRepository.save(project);
+
+        UserEntity creator = UserEntity.builder()
+                .email("creator@test.com")
+                .fullName("Creator")
+                .role(UserRole.DEVELOPER)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .deleted(false)
+                .build();
+        userRepository.save(creator);
+
+        UserEntity currentAssignee = UserEntity.builder()
+                .email("assignee@test.com")
+                .fullName("Assignee")
+                .role(UserRole.DEVELOPER)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .deleted(false)
+                .build();
+        userRepository.save(currentAssignee);
+
+        UserEntity outsider = UserEntity.builder()
+                .email("outsider@test.com")
+                .fullName("Outsider")
+                .role(UserRole.DEVELOPER)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .deleted(false)
+                .build();
+        userRepository.save(outsider);
+
+        projectMemberRepository.save(ProjectMemberEntity.builder()
+                .project(project)
+                .user(creator)
+                .role(ProjectMemberRole.OWNER)
+                .joinedAt(LocalDateTime.now())
+                .build());
+
+        projectMemberRepository.save(ProjectMemberEntity.builder()
+                .project(project)
+                .user(currentAssignee)
+                .role(ProjectMemberRole.CONTRIBUTOR)
+                .joinedAt(LocalDateTime.now())
+                .build());
+
+        TaskEntity task = TaskEntity.builder()
+                .project(project)
+                .creator(creator)
+                .assignee(currentAssignee)
+                .title("T")
+                .description("d")
+                .status(TaskStatus.TODO)
+                .priority(TaskPriority.MEDIUM)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .deleted(false)
+                .build();
+        taskRepository.save(task);
+
+        TaskReassignDto dto = new TaskReassignDto();
+        dto.setTaskId(task.getId());
+        dto.setNewAssigneeUserId(outsider.getId());
+
+        assertThatThrownBy(() -> taskService.reassignTask(dto))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Assignee must be a member");
+    }
+
+    @Test
+    void optimisticLock_conflictOnStaleDetachedEntity_throws() {
+        TransactionTemplate tx = new TransactionTemplate(transactionManager);
+
+        // Arrange: create baseline data
+        Long taskId = tx.execute(status -> {
+            ProjectEntity project = ProjectEntity.builder()
+                    .name("P")
+                    .description("desc")
+                    .status(ProjectStatus.ACTIVE)
+                    .createdAt(LocalDateTime.now())
+                    .updatedAt(LocalDateTime.now())
+                    .deleted(false)
+                    .build();
+            projectRepository.save(project);
+
+            UserEntity creator = UserEntity.builder()
+                    .email("creator@test.com")
+                    .fullName("Creator")
+                    .role(UserRole.DEVELOPER)
+                    .createdAt(LocalDateTime.now())
+                    .updatedAt(LocalDateTime.now())
+                    .deleted(false)
+                    .build();
+            userRepository.save(creator);
+
+            UserEntity u1 = UserEntity.builder()
+                    .email("u1@test.com")
+                    .fullName("U1")
+                    .role(UserRole.DEVELOPER)
+                    .createdAt(LocalDateTime.now())
+                    .updatedAt(LocalDateTime.now())
+                    .deleted(false)
+                    .build();
+            userRepository.save(u1);
+
+            projectMemberRepository.save(ProjectMemberEntity.builder()
+                    .project(project)
+                    .user(creator)
+                    .role(ProjectMemberRole.OWNER)
+                    .joinedAt(LocalDateTime.now())
+                    .build());
+
+            projectMemberRepository.save(ProjectMemberEntity.builder()
+                    .project(project)
+                    .user(u1)
+                    .role(ProjectMemberRole.CONTRIBUTOR)
+                    .joinedAt(LocalDateTime.now())
+                    .build());
+
+            TaskEntity task = TaskEntity.builder()
+                    .project(project)
+                    .creator(creator)
+                    .assignee(u1)
+                    .title("T")
+                    .description("d")
+                    .status(TaskStatus.TODO)
+                    .priority(TaskPriority.MEDIUM)
+                    .createdAt(LocalDateTime.now())
+                    .updatedAt(LocalDateTime.now())
+                    .deleted(false)
+                    .build();
+            taskRepository.save(task);
+
+            entityManager.flush();
+            entityManager.clear();
+            return task.getId();
+        });
+
+        // Tx A: load entity and detach (stale snapshot)
+        TaskEntity stale = tx.execute(status -> {
+            Assertions.assertNotNull(taskId);
+            TaskEntity t = taskRepository.findById(taskId).orElseThrow();
+            entityManager.detach(t);
+            return t;
+        });
+
+        // Tx B: update same row (increments version)
+        tx.execute(status -> {
+            Assertions.assertNotNull(taskId);
+            TaskEntity fresh = taskRepository.findById(taskId).orElseThrow();
+            fresh.setTitle("Fresh update");
+            fresh.setUpdatedAt(LocalDateTime.now());
+            taskRepository.save(fresh);
+            entityManager.flush();
+            entityManager.clear();
+            return null;
+        });
+
+        // Tx C: try to save stale entity -> optimistic locking failure
+        assertThatThrownBy(() -> tx.execute(status -> {
+            Assertions.assertNotNull(stale);
+            stale.setTitle("Stale update");
+            stale.setUpdatedAt(LocalDateTime.now());
+            taskRepository.save(stale);
+            entityManager.flush();
+            return null;
+        }))
+                .isInstanceOf(ObjectOptimisticLockingFailureException.class)
+                .hasRootCauseInstanceOf(org.hibernate.StaleObjectStateException.class);
+
+        cleanDb();
+    }
+
+    void cleanDb() {
+        jdbcTemplate.execute("TRUNCATE TABLE task_tags RESTART IDENTITY CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE task_comments RESTART IDENTITY CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE tasks RESTART IDENTITY CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE project_members RESTART IDENTITY CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE tags RESTART IDENTITY CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE projects RESTART IDENTITY CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
     }
 
     @Test

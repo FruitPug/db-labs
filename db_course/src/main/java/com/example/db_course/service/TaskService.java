@@ -1,6 +1,7 @@
 package com.example.db_course.service;
 
 import com.example.db_course.dto.request.TaskCreateDto;
+import com.example.db_course.dto.request.TaskReassignDto;
 import com.example.db_course.dto.request.TaskStatusUpdateDto;
 import com.example.db_course.dto.response.TaskResponseDto;
 import com.example.db_course.entity.ProjectEntity;
@@ -9,6 +10,7 @@ import com.example.db_course.entity.UserEntity;
 import com.example.db_course.entity.enums.TaskPriority;
 import com.example.db_course.entity.enums.TaskStatus;
 import com.example.db_course.mapper.TaskMapper;
+import com.example.db_course.repository.ProjectMemberRepository;
 import com.example.db_course.repository.ProjectRepository;
 import com.example.db_course.repository.TaskRepository;
 import com.example.db_course.repository.UserRepository;
@@ -29,6 +31,7 @@ public class TaskService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
+    private final ProjectMemberRepository projectMemberRepository;
     private final SoftDeleteHelper softDeleteHelper;
 
     @Transactional
@@ -66,6 +69,31 @@ public class TaskService {
 
         taskRepository.save(task);
 
+        return ResponseEntity.ok().build();
+    }
+
+    @Transactional
+    public ResponseEntity<Void> reassignTask(TaskReassignDto dto) {
+
+        TaskEntity task = taskRepository.findById(dto.getTaskId())
+                .orElseThrow(() -> new IllegalArgumentException("Task not found"));
+
+        UserEntity newAssignee = userRepository.findById(dto.getNewAssigneeUserId())
+                .orElseThrow(() -> new IllegalArgumentException("Assignee user not found"));
+
+        Long projectId = task.getProject().getId();
+
+        boolean isMember = projectMemberRepository.existsByProject_IdAndUser_Id(projectId, newAssignee.getId());
+        if (!isMember) {
+            throw new IllegalStateException("Assignee must be a member of the project");
+        }
+
+        task.setAssignee(newAssignee);
+        task.setUpdatedAt(LocalDateTime.now());
+
+        taskRepository.save(task);
+
+        // @Version on TaskEntity will enforce optimistic locking on flush/commit
         return ResponseEntity.ok().build();
     }
 
