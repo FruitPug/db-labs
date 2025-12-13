@@ -7,11 +7,13 @@ import com.example.db_course.dto.request.ProjectCreateWithOwnerDto;
 import com.example.db_course.dto.response.ProjectResponseDto;
 import com.example.db_course.entity.ProjectEntity;
 import com.example.db_course.entity.ProjectMemberEntity;
+import com.example.db_course.entity.TaskEntity;
 import com.example.db_course.entity.UserEntity;
 import com.example.db_course.entity.enums.ProjectMemberRole;
 import com.example.db_course.entity.enums.ProjectStatus;
 import com.example.db_course.repository.ProjectMemberRepository;
 import com.example.db_course.repository.ProjectRepository;
+import com.example.db_course.repository.TaskRepository;
 import com.example.db_course.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
@@ -40,6 +42,9 @@ class ProjectServiceIT extends IntegrationTestBase {
 
     @Autowired
     private ProjectMemberRepository projectMemberRepository;
+
+    @Autowired
+    private TaskRepository taskRepository;
 
     @Autowired
     private EntityManager entityManager;
@@ -115,6 +120,15 @@ class ProjectServiceIT extends IntegrationTestBase {
         ProjectEntity project = EntityCreator.getProjectEntity();
         projectRepository.save(project);
 
+        UserEntity user = EntityCreator.getUserEntity();
+        userRepository.save(user);
+
+        TaskEntity task = EntityCreator.getTaskEntity(user, project);
+        taskRepository.save(task);
+
+        ProjectMemberEntity projectMember = EntityCreator.getProjectMemberEntity(user, project);
+        projectMemberRepository.save(projectMember);
+
         Long id = project.getId();
 
         assertThat(projectRepository.findRawById(id)).isPresent();
@@ -126,6 +140,8 @@ class ProjectServiceIT extends IntegrationTestBase {
         entityManager.clear();
 
         assertThat(projectRepository.findRawById(id)).isEmpty();
+        assertThat(projectMemberRepository.findRawById(projectMember.getId()).isEmpty());
+        assertThat(taskRepository.findRawById(task.getId()).isEmpty());
     }
 
     @Test
