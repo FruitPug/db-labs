@@ -411,7 +411,7 @@ class TaskServiceIT extends IntegrationTestBase {
                 .build();
         userRepository.save(assignee);
 
-        TaskEntity t1 = TaskEntity.builder()
+        TaskEntity task1 = TaskEntity.builder()
                 .project(project)
                 .creator(creator)
                 .assignee(assignee)
@@ -424,9 +424,9 @@ class TaskServiceIT extends IntegrationTestBase {
                 .updatedAt(LocalDateTime.now())
                 .deleted(false)
                 .build();
-        taskRepository.save(t1);
+        taskRepository.save(task1);
 
-        TaskEntity t2 = TaskEntity.builder()
+        TaskEntity task2 = TaskEntity.builder()
                 .project(project)
                 .creator(creator)
                 .assignee(assignee)
@@ -440,9 +440,9 @@ class TaskServiceIT extends IntegrationTestBase {
                 .deleted(true)
                 .deletedAt(LocalDateTime.now())
                 .build();
-        taskRepository.save(t2);
+        taskRepository.save(task2);
 
-        TaskEntity t3 = TaskEntity.builder()
+        TaskEntity task3 = TaskEntity.builder()
                 .project(project)
                 .creator(creator)
                 .assignee(assignee)
@@ -455,7 +455,7 @@ class TaskServiceIT extends IntegrationTestBase {
                 .updatedAt(LocalDateTime.now())
                 .deleted(false)
                 .build();
-        taskRepository.save(t3);
+        taskRepository.save(task3);
 
         PageRequest pageable = PageRequest.of(0, 10);
         Page<TaskResponseDto> page = taskService
@@ -465,9 +465,9 @@ class TaskServiceIT extends IntegrationTestBase {
         assertThat(page).isNotNull();
         assertThat(page.getTotalElements()).isEqualTo(1);
         TaskResponseDto dto = page.getContent().get(0);
-        assertThat(dto.getTitle()).isEqualTo("Task 1");
-        assertThat(dto.getStatus()).isEqualTo(TaskStatus.TODO);
-        assertThat(dto.getPriority()).isEqualTo(TaskPriority.MEDIUM);
+        assertThat(dto.getTitle()).isEqualTo(task1.getTitle());
+        assertThat(dto.getStatus()).isEqualTo(task1.getStatus());
+        assertThat(dto.getPriority()).isEqualTo(task1.getPriority());
         assertThat(dto.getProjectId()).isEqualTo(project.getId());
     }
 }

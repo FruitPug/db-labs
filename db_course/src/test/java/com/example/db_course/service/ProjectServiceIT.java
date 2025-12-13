@@ -180,8 +180,8 @@ class ProjectServiceIT extends IntegrationTestBase {
         assertThat(page).isNotNull();
         assertThat(page.getTotalElements()).isEqualTo(1);
         ProjectResponseDto dto = page.getContent().get(0);
-        assertThat(dto.getName()).isEqualTo("Test project 1");
-        assertThat(dto.getDescription()).isEqualTo("desc1");
-        assertThat(dto.getStatus()).isEqualTo(ProjectStatus.ACTIVE);
+        assertThat(dto.getName()).isEqualTo(project1.getName());
+        assertThat(dto.getDescription()).isEqualTo(project1.getDescription());
+        assertThat(dto.getStatus()).isEqualTo(project1.getStatus());
     }
 }
