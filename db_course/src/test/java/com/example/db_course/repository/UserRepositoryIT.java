@@ -3,7 +3,6 @@ package com.example.db_course.repository;
 import com.example.db_course.EntityCreator;
 import com.example.db_course.IntegrationTestBase;
 import com.example.db_course.entity.UserEntity;
-import com.example.db_course.entity.enums.UserRole;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

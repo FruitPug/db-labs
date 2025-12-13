@@ -8,7 +8,6 @@ import com.example.db_course.entity.UserEntity;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 
 import java.util.Optional;
 
