@@ -1,5 +1,6 @@
 package com.example.db_course.unit.dto;
 
+import com.example.db_course.dto.request.TaskStatusUpdateDto;
 import com.example.db_course.entity.enums.TaskStatus;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;

@@ -3,6 +3,7 @@ package com.example.db_course.integration.repository;
 import com.example.db_course.EntityCreator;
 import com.example.db_course.integration.IntegrationTestBase;
 import com.example.db_course.entity.TagEntity;
+import com.example.db_course.repository.TagRepository;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
