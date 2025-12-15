@@ -1,20 +1,6 @@
 ## ERD (Entity–Relationship Diagram)
 
-```plantuml
-erDiagram
-  USERS ||--o{ PROJECT_MEMBERS : "member_of"
-  PROJECTS ||--o{ PROJECT_MEMBERS : "has_members"
-
-  USERS ||--o{ TASKS : "creates"
-  USERS ||--o{ TASKS : "assigned_to"
-  PROJECTS ||--o{ TASKS : "contains"
-
-  TASKS ||--o{ TASK_COMMENTS : "has_comments"
-  USERS ||--o{ TASK_COMMENTS : "writes"
-
-  TASKS ||--o{ TASK_TAGS : "tagged_with"
-  TAGS  ||--o{ TASK_TAGS : "applied_to"
-```
+![schema.png](schema.png)
 
 ---
 
